@@ -1,101 +1,105 @@
 <?php
 
-namespace App\Http\Controllers\Petugas;
+namespace App\Http\Controllers\Petugas; // Sesuaikan folder
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Book;
+use Illuminate\Support\Facades\Storage;
 
 class DatabukuController extends Controller
 {
-    /**
-     * Menampilkan daftar semua buku
-     */
+    // Tampilkan Tabel
     public function index()
     {
-        $books = \App\Models\Book::all();
-        // Alamat View tetap ke folder petugas
-        return view('petugas.databuku', compact('books'));
+        $books = Book::all();
+        return view('backend.buku.index', compact('books'));
     }
 
-    /**
-     * Menampilkan form tambah buku (Create)
-     */
+    // Halaman Tambah
     public function create()
     {
-        // ALAMAT VIEW DIUBAH: Sesuai folder yang kamu sebutkan tadi
         return view('backend.buku.create');
     }
 
-    /**
-     * Menyimpan buku baru ke database (Store)
-     */
+    // Simpan Data
     public function store(Request $request)
     {
         $request->validate([
-            'judul'        => 'required',
-            'penulis'      => 'required',
-            'tahun_terbit' => 'required|numeric',
-            'stok_buku'    => 'required|numeric',
+            'judul' => 'required',
+            'penulis' => 'required',
+            'tahun_terbit' => 'required',
+            'stok_buku' => 'required|integer',
+            'foto' => 'image|mimes:jpeg,png,jpg|max:2048'
         ]);
+
+        $namaFoto = 'default.jpg';
+
+        if ($request->hasFile('foto')) {
+            $foto = $request->file('foto');
+            $namaFoto = time() . '_' . $foto->getClientOriginalName();
+            $foto->storeAs('public/buku', $namaFoto);
+        }
 
         Book::create([
-            'judul'        => $request->judul,
-            'penulis'      => $request->penulis,
+            'judul' => $request->judul,
+            'penulis' => $request->penulis,
             'tahun_terbit' => $request->tahun_terbit,
-            'stok_buku'    => $request->stok_buku,
-            'foto'         => '',
+            'stok_buku' => $request->stok_buku,
+            'foto' => $namaFoto,
         ]);
 
-        // ALAMAT REDIRECT DIUBAH: Pakai route name agar otomatis jadi /petugas/books
-        return redirect()->route('petugas.databuku')->with('success', 'Buku baru berhasil ditambahkan!');
+        return redirect()->route('petugas.databuku')->with('success', 'Buku berhasil ditambahkan!');
     }
 
-    /**
-     * Menampilkan form edit buku
-     */
+    // Halaman Edit
     public function edit($id)
     {
         $book = Book::findOrFail($id);
-        // ALAMAT VIEW DIUBAH: Sesuai folder backend/buku
         return view('backend.buku.create', compact('book'));
     }
 
-    /**
-     * Memperbarui data buku di database (Update)
-     */
+    // Update Data
     public function update(Request $request, $id)
     {
-        $book = Book::findOrFail($id);
-
         $request->validate([
-            'judul'        => 'required',
-            'penulis'      => 'required',
-            'tahun_terbit' => 'required|numeric',
-            'stok_buku'    => 'required|numeric',
+            'judul' => 'required',
+            'penulis' => 'required',
+            'tahun_terbit' => 'required',
+            'stok_buku' => 'required|integer',
+            'foto' => 'image|mimes:jpeg,png,jpg|max:2048'
         ]);
 
-        $book->update([
-            'judul'        => $request->judul,
-            'penulis'      => $request->penulis,
-            'tahun_terbit' => $request->tahun_terbit,
-            'stok_buku'    => $request->stok_buku,
-            'foto'         => $book->foto ?? '',
-        ]);
+        $book = Book::findOrFail($id);
+        $data = $request->all();
 
-        // ALAMAT REDIRECT DIUBAH: Pakai route name
-        return redirect()->route('petugas.databuku')->with('success', 'Data buku berhasil diperbarui!');
+        if ($request->hasFile('foto')) {
+            if ($book->foto && $book->foto !== 'default.jpg') {
+                Storage::delete('public/buku/' . $book->foto);
+            }
+
+            $foto = $request->file('foto');
+            $namaFoto = time() . '_' . $foto->getClientOriginalName();
+            $foto->storeAs('public/buku', $namaFoto);
+            $data['foto'] = $namaFoto;
+        }
+
+        $book->update($data);
+
+        return redirect()->route('petugas.databuku')->with('success', 'Buku berhasil diperbarui!');
     }
 
-    /**
-     * Menghapus buku (Delete)
-     */
+    // Hapus Data
     public function destroy($id)
     {
         $book = Book::findOrFail($id);
+
+        if ($book->foto && $book->foto !== 'default.jpg') {
+            Storage::delete('public/buku/' . $book->foto);
+        }
+
         $book->delete();
 
-        // ALAMAT REDIRECT DIUBAH: Pakai route name
         return redirect()->route('petugas.databuku')->with('success', 'Buku berhasil dihapus!');
     }
 }

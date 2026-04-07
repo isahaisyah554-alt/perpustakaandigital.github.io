@@ -11,9 +11,12 @@ return new class extends Migration
         Schema::create('users', function (Blueprint $table) {
             $table->id();
             $table->string('name');
+            $table->string('username')->unique(); // Tambahkan ini
             $table->string('email')->unique();
+            $table->string('no_hp')->nullable();  // Tambahkan ini
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->string('role')->default('anggota'); // Tambahkan ini (petugas, kepala, anggota)
             $table->rememberToken();
             $table->timestamps();
         });
@@ -34,9 +37,6 @@ return new class extends Migration
         });
     }
 
-    /**
-     * Reverse the migrations.
-     */
     public function down(): void
     {
         Schema::dropIfExists('users');

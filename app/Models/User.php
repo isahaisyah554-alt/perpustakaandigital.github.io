@@ -13,11 +13,11 @@ class User extends Authenticatable
     protected $fillable = [
     'name',
     'email',
+    'username',
+    'no_hp',
     'password',
-    'role',
-    'no_hp',     // Tambahkan ini
-    'username',  // Tambahkan ini
-    ];
+    'role', // Pastikan role juga ada di sini
+];
     /**
      * Field yang disembunyikan
      */

@@ -100,8 +100,17 @@
                 @forelse($books as $book)
                 <tr>
                     <td>
-                        <div class="book-img" style="width: 50px; height: 70px; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #9ca3af;">No Cover</div>
-                    </td>
+    @if($book->foto && $book->foto !== 'default.jpg')
+        {{-- Menampilkan foto asli dari folder storage/buku --}}
+        <img src="{{ asset('storage/buku/' . $book->foto) }}"
+             style="width: 50px; height: 70px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+    @else
+        {{-- Tampilan jika tidak ada foto --}}
+        <div style="width: 50px; height: 70px; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #9ca3af; text-align: center; padding: 5px; border: 1px dashed #d1d5db;">
+            No Cover
+        </div>
+    @endif
+</td>
                     <td>BK-{{ str_pad($book->id, 4, '0', STR_PAD_LEFT) }}</td>
                     <td>
                         <div style="font-weight: 700; color: #111827;">{{ $book->judul }}</div>

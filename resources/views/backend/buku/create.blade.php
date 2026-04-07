@@ -28,16 +28,7 @@
         margin: 0;
     }
 
-    .form-header p {
-        color: #6B7280;
-        font-size: 14px;
-        margin-top: 5px;
-    }
-
-    .form-group {
-        margin-bottom: 20px;
-    }
-
+    .form-group { margin-bottom: 20px; }
     .form-group label {
         display: block;
         font-size: 14px;
@@ -52,82 +43,65 @@
         border: 1px solid #D1D5DB;
         border-radius: 10px;
         font-size: 15px;
-        color: #1F2937;
-        transition: all 0.3s;
         box-sizing: border-box;
     }
 
-    .form-group input:focus {
-        outline: none;
-        border-color: #3B82F6;
-        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
-    }
-
-    .flex-group {
-        display: flex;
-        gap: 20px;
-    }
-
-    .flex-group .form-group {
-        flex: 1;
-    }
+    .flex-group { display: flex; gap: 20px; }
+    .flex-group .form-group { flex: 1; }
 
     .btn-submit {
-        background: #3B82F6;
-        color: white;
-        padding: 14px 28px;
-        border: none;
-        border-radius: 10px;
-        font-weight: 700;
-        font-size: 16px;
-        cursor: pointer;
-        transition: 0.3s;
-        display: inline-flex;
-        align-items: center;
-        gap: 10px;
+        background: #3B82F6; color: white; padding: 14px 28px;
+        border: none; border-radius: 10px; font-weight: 700;
+        cursor: pointer; transition: 0.3s;
     }
 
-    .btn-submit:hover {
-        background: #2563EB;
-        transform: translateY(-2px);
-        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
-    }
+    .btn-submit:hover { background: #2563EB; transform: translateY(-2px); }
+    .btn-cancel { color: #6B7280; text-decoration: none; font-weight: 600; }
 
-    .btn-cancel {
-        color: #6B7280;
-        text-decoration: none;
-        font-weight: 600;
-        font-size: 15px;
-        transition: 0.2s;
-    }
-
-    .btn-cancel:hover {
-        color: #1F2937;
-    }
-
-    .action-area {
-        margin-top: 30px;
-        display: flex;
-        align-items: center;
-        gap: 20px;
+    .alert-danger {
+        background: #FEE2E2; color: #991B1B; padding: 15px;
+        border-radius: 10px; margin-bottom: 20px; font-size: 14px;
     }
 </style>
 
 <div class="form-container">
     <div class="form-header">
         <h2>{{ isset($book) ? '✏️ Edit Data Buku' : '📚 Tambah Koleksi Baru' }}</h2>
-        <p>{{ isset($book) ? 'Perbarui informasi buku yang sudah ada di database.' : 'Masukkan detail buku untuk menambah koleksi perpustakaan.' }}</p>
+        <p>Pastikan semua data terisi dengan benar.</p>
     </div>
 
-    <form action="{{ isset($book) ? route('petugas.databuku.update', $book->id) : route('petugas.databuku.store') }}" method="POST">
+    {{-- Alert Error: Untuk melihat kenapa data gagal disimpan --}}
+    @if ($errors->any())
+        <div class="alert-danger">
+            <strong>Ups! Ada masalah:</strong>
+            <ul style="margin-top: 5px; margin-bottom: 0;">
+                @foreach ($errors->all() as $error)
+                    <li>{{ $error }}</li>
+                @endforeach
+            </ul>
+        </div>
+    @endif
+
+    <form action="{{ isset($book) ? route('petugas.databuku.update', $book->id) : route('petugas.databuku.store') }}"
+          method="POST"
+          enctype="multipart/form-data">
         @csrf
-        @if(isset($book))
-            @method('PUT')
-        @endif
+        @if(isset($book)) @method('PUT') @endif
 
         <div class="form-group">
             <label>Judul Buku</label>
-            <input type="text" name="judul" value="{{ old('judul', $book->judul ?? '') }}" placeholder="Masukkan judul lengkap buku..." required>
+            <input type="text" name="judul" value="{{ old('judul', $book->judul ?? '') }}" placeholder="Masukkan judul buku..." required>
+        </div>
+
+        <div class="form-group">
+            <label>Foto Sampul (JPG/PNG)</label>
+            <input type="file" name="foto" accept="image/*" style="border: none; padding: 10px 0;">
+            @if(isset($book) && $book->foto)
+                <div style="margin-top: 10px;">
+                    <img src="{{ asset('storage/buku/' . $book->foto) }}" width="80" style="border-radius: 8px; border: 1px solid #ddd;">
+                    <p style="font-size: 12px; color: #6B7280;">Cover saat ini: {{ $book->foto }}</p>
+                </div>
+            @endif
         </div>
 
         <div class="form-group">
@@ -136,18 +110,19 @@
         </div>
 
         <div class="flex-group">
+            {{-- INPUT TAHUN TERBIT (WAJIB ADA) --}}
             <div class="form-group">
                 <label>Tahun Terbit</label>
                 <input type="number" name="tahun_terbit" value="{{ old('tahun_terbit', $book->tahun_terbit ?? '') }}" placeholder="Contoh: 2024" required>
             </div>
 
             <div class="form-group">
-                <label>Jumlah Stok (Ekspl)</label>
+                <label>Jumlah Stok</label>
                 <input type="number" name="stok_buku" value="{{ old('stok_buku', $book->stok_buku ?? '') }}" placeholder="0" required>
             </div>
         </div>
 
-        <div class="action-area">
+        <div class="action-area" style="margin-top: 30px; display: flex; align-items: center; gap: 20px;">
             <button type="submit" class="btn-submit">
                 {{ isset($book) ? '🔄 Perbarui Data' : '🚀 Simpan Koleksi' }}
             </button>
