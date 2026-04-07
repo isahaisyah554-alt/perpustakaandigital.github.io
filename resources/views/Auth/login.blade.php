@@ -161,24 +161,23 @@
 
         <div class="title">Selamat Datang</div>
         <div class="subtitle">Silahkan login sesuai dengan hak akses Anda</div>
+        <form method="POST" action="{{ route('login') }}">
+            @csrf
 
-        <form method="POST" action="{{ route('Auth.login') }}">
-        @csrf
-        <div class="input-group">
-            <label class="label">Email / Username</label>
-            <input type="text" name="email" placeholder="Masukkan email" class="input" required>
-        </div>
+            <div class="input-group">
+                <label class="label">Email / Username</label>
+                <input type="text" name="email" class="input" required>
+            </div>
 
-        <div class="input-group">
-            <label class="label">Password</label>
-            <input type="password" name="password" placeholder="Masukkan password" class="input" required>
-        </div>
+            <div class="input-group">
+                <label class="label">Password</label>
+                <input type="password" name="password" class="input" required>
+            </div>
 
-        <button type="submit" class="btn">Masuk ke Sistem</button>
-    </form>
-
+            <button type="submit" class="btn">Masuk ke Sistem</button>
+        </form>
         <div class="register">
-            Belum punya akun? <a href="{{ route('Auth.register.form') }}">Daftar sebagai Anggota</a>
+            Belum punya akun? <a href="{{ route('register.form') }}">Daftar sebagai Anggota</a>
         </div>
     </div>
 </div>

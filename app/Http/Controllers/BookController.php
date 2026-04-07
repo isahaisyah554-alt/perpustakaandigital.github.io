@@ -9,7 +9,10 @@ class BookController extends Controller
 {
     public function index()
     {
+        // Ambil semua data (jamak = books)
         $books = Book::all();
+
+        // Kirim ke view, namanya HARUS SAMA dengan variabel di atas ('books')
         return view('backend.buku.index', compact('books'));
     }
 
@@ -20,7 +23,7 @@ class BookController extends Controller
 
     public function store(Request $request)
     {
-        // ✅ VALIDASI (penting biar ga error)
+        // ✅ VALIDASI
         $request->validate([
             'judul' => 'required',
             'penulis' => 'required',
@@ -32,10 +35,10 @@ class BookController extends Controller
             'judul' => $request->judul,
             'penulis' => $request->penulis,
             'stok_buku' => $request->stok_buku,
-            'foto' => 'default.jpg' // sementara
+            'foto' => 'default.jpg'
         ]);
 
-        // ✅ REDIRECT + PESAN
+        // ✅ REDIRECT
         return redirect('/books')->with('success', 'Data buku berhasil ditambahkan');
     }
 }

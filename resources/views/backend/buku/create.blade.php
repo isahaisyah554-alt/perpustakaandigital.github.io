@@ -1,189 +1,158 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tambah Buku Baru - Sistem Perpustakaan</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,300;0,400;0,500;0,600;0,700;1,500&display=swap" rel="stylesheet">
+@extends('layout.petugas')
 
-    <style>
-        /* --- Base Setup --- */
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-        body { background: #F8FAFC; font-family: 'Inter', sans-serif; overflow-x: hidden; }
+@section('title', isset($book) ? 'Edit Buku' : 'Tambah Buku')
 
-        .container {
-            position: relative;
-            width: 1440px;
-            height: 1024px;
-            margin: 0 auto;
-            background: #F8FAFC;
-        }
+@section('content')
+<style>
+    .form-container {
+        max-width: 800px;
+        margin: 20px auto;
+        background: #FFFFFF;
+        border: 1px solid #E5E7EB;
+        border-radius: 16px;
+        padding: 40px;
+        box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1);
+    }
 
-        /* --- Navbar --- */
-        .nav-atas {
-            position: absolute;
-            width: 1440px;
-            height: 87px;
-            background: #FFFFFF;
-            border-bottom: 1px solid #E5E7EB;
-            display: flex;
-            align-items: center;
-            padding: 0 40px;
-            z-index: 10;
-        }
+    .form-header {
+        margin-bottom: 30px;
+        border-bottom: 2px solid #F3F4F6;
+        padding-bottom: 20px;
+    }
 
-        .logo-text { font-style: italic; font-weight: 500; font-size: 32px; color: #6B7280; flex: 1; }
-        .user-info { font-weight: 300; font-size: 20px; color: #6B7280; margin-right: 20px; }
-        .user-icon { width: 40px; height: 40px; background: #E5E7EB; border-radius: 50%; }
+    .form-header h2 {
+        font-family: 'Inter', sans-serif;
+        font-weight: 700;
+        font-size: 24px;
+        color: #1F2937;
+        margin: 0;
+    }
 
-        /* --- Form Card Area --- */
-        .scroll-wrapper {
-            position: absolute;
-            width: 869px;
-            height: 850px;
-            left: 285px;
-            top: 120px;
-            overflow-y: auto;
-            padding-right: 10px;
-        }
+    .form-header p {
+        color: #6B7280;
+        font-size: 14px;
+        margin-top: 5px;
+    }
 
-        /* Desain Card */
-        .form-card {
-            background: #FFFFFF;
-            border: 1px solid #E5E7EB;
-            box-shadow: 0px 10px 25px rgba(0, 0, 0, 0.05);
-            border-radius: 20px;
-            padding: 50px;
-            min-height: 1100px;
-            position: relative;
-        }
+    .form-group {
+        margin-bottom: 20px;
+    }
 
-        .title { font-weight: 700; font-size: 32px; color: #1F2937; text-align: center; margin-bottom: 10px; }
-        .subtitle { font-size: 16px; color: #6B7280; text-align: center; margin-bottom: 30px; opacity: 0.8; }
+    .form-group label {
+        display: block;
+        font-size: 14px;
+        font-weight: 600;
+        color: #374151;
+        margin-bottom: 8px;
+    }
 
-        .line-divider { width: 100%; height: 1px; background: #E5E7EB; margin-bottom: 40px; }
+    .form-group input {
+        width: 100%;
+        padding: 12px 16px;
+        border: 1px solid #D1D5DB;
+        border-radius: 10px;
+        font-size: 15px;
+        color: #1F2937;
+        transition: all 0.3s;
+        box-sizing: border-box;
+    }
 
-        /* --- Custom Input Styling --- */
-        .form-group { margin-bottom: 25px; position: relative; width: 500px; margin-left: auto; margin-right: auto; }
+    .form-group input:focus {
+        outline: none;
+        border-color: #3B82F6;
+        box-shadow: 0 0 0 4px rgba(59, 130, 246, 0.1);
+    }
 
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-weight: 600;
-            font-size: 14px;
-            color: #374151;
-            padding-left: 5px;
-        }
+    .flex-group {
+        display: flex;
+        gap: 20px;
+    }
 
-        .input-control {
-            width: 100%;
-            height: 65px;
-            background: #FFFFFF;
-            border: 1px solid #D1D5DB;
-            box-shadow: 0px 2px 4px rgba(0, 0, 0, 0.02);
-            border-radius: 12px;
-            padding: 0 20px;
-            font-size: 18px;
-            font-family: 'Inter';
-            color: #1F2937;
-            transition: all 0.3s ease;
-        }
+    .flex-group .form-group {
+        flex: 1;
+    }
 
-        .input-control:focus {
-            outline: none;
-            border-color: #3B82F6;
-            box-shadow: 0px 0px 0px 4px rgba(59, 130, 246, 0.1);
-        }
+    .btn-submit {
+        background: #3B82F6;
+        color: white;
+        padding: 14px 28px;
+        border: none;
+        border-radius: 10px;
+        font-weight: 700;
+        font-size: 16px;
+        cursor: pointer;
+        transition: 0.3s;
+        display: inline-flex;
+        align-items: center;
+        gap: 10px;
+    }
 
-        /* --- Buttons --- */
-        .btn-container { text-align: center; margin-top: 40px; }
+    .btn-submit:hover {
+        background: #2563EB;
+        transform: translateY(-2px);
+        box-shadow: 0 4px 12px rgba(37, 99, 235, 0.2);
+    }
 
-        .btn {
-            width: 500px;
-            height: 70px;
-            border-radius: 12px;
-            font-size: 20px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            margin: 0 auto 15px;
-            border: none;
-        }
+    .btn-cancel {
+        color: #6B7280;
+        text-decoration: none;
+        font-weight: 600;
+        font-size: 15px;
+        transition: 0.2s;
+    }
 
-        .btn-simpan {
-            background: #3B82F6;
-            color: #FFFFFF;
-            box-shadow: 0px 4px 10px rgba(59, 130, 246, 0.3);
-        }
+    .btn-cancel:hover {
+        color: #1F2937;
+    }
 
-        .btn-simpan:hover { background: #2563EB; transform: translateY(-2px); }
+    .action-area {
+        margin-top: 30px;
+        display: flex;
+        align-items: center;
+        gap: 20px;
+    }
+</style>
 
-        .btn-batal {
-            background: transparent;
-            color: #6B7280;
-            border: 1px solid #E5E7EB;
-            text-decoration: none;
-        }
-
-        .btn-batal:hover { background: #F9FAFB; color: #111827; }
-
-    </style>
-</head>
-<body>
-
-    <div class="container">
-        <header class="nav-atas">
-            <div class="logo-text">LibSys.</div>
-            <div class="user-info">Halo, Bapak Muhammad Arif</div>
-            <div class="user-icon"></div>
-        </header>
-
-        <div class="scroll-wrapper">
-            <div class="form-card">
-                <h1 class="title">Tambah Buku Baru</h1>
-                <p class="subtitle">Silakan lengkapi data di bawah untuk menambah koleksi perpustakaan</p>
-
-                <div class="line-divider"></div>
-
-                <form action="/books" method="POST">
-                    @csrf
-
-                    <div class="form-group">
-                        <label>Judul Buku</label>
-                        <input type="text" name="judul" class="input-control" placeholder="Masukkan judul lengkap..." required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Penulis / Pengarang</label>
-                        <input type="text" name="penulis" class="input-control" placeholder="Nama penulis..." required>
-                    </div>
-
-                    <div class="form-group">
-                        <label>Penerbit</label>
-                        <input type="text" name="penerbit" class="input-control" placeholder="Nama perusahaan penerbit...">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Tahun Terbit</label>
-                        <input type="number" name="tahun" class="input-control" placeholder="Contoh: 2024">
-                    </div>
-
-                    <div class="form-group">
-                        <label>Jumlah Stok</label>
-                        <input type="number" name="stok_buku" class="input-control" placeholder="Jumlah buku tersedia..." required>
-                    </div>
-
-                    <div class="btn-container">
-                        <button type="submit" class="btn btn-simpan">Simpan Data Buku</button>
-                        <a href="/books" class="btn btn-batal">Kembali ke Dashboard</a>
-                    </div>
-                </form>
-            </div>
-        </div>
+<div class="form-container">
+    <div class="form-header">
+        <h2>{{ isset($book) ? '✏️ Edit Data Buku' : '📚 Tambah Koleksi Baru' }}</h2>
+        <p>{{ isset($book) ? 'Perbarui informasi buku yang sudah ada di database.' : 'Masukkan detail buku untuk menambah koleksi perpustakaan.' }}</p>
     </div>
 
-</body>
-</html>
+    <form action="{{ isset($book) ? route('petugas.databuku.update', $book->id) : route('petugas.databuku.store') }}" method="POST">
+        @csrf
+        @if(isset($book))
+            @method('PUT')
+        @endif
+
+        <div class="form-group">
+            <label>Judul Buku</label>
+            <input type="text" name="judul" value="{{ old('judul', $book->judul ?? '') }}" placeholder="Masukkan judul lengkap buku..." required>
+        </div>
+
+        <div class="form-group">
+            <label>Nama Pengarang / Penulis</label>
+            <input type="text" name="penulis" value="{{ old('penulis', $book->penulis ?? '') }}" placeholder="Contoh: Andrea Hirata" required>
+        </div>
+
+        <div class="flex-group">
+            <div class="form-group">
+                <label>Tahun Terbit</label>
+                <input type="number" name="tahun_terbit" value="{{ old('tahun_terbit', $book->tahun_terbit ?? '') }}" placeholder="Contoh: 2024" required>
+            </div>
+
+            <div class="form-group">
+                <label>Jumlah Stok (Ekspl)</label>
+                <input type="number" name="stok_buku" value="{{ old('stok_buku', $book->stok_buku ?? '') }}" placeholder="0" required>
+            </div>
+        </div>
+
+        <div class="action-area">
+            <button type="submit" class="btn-submit">
+                {{ isset($book) ? '🔄 Perbarui Data' : '🚀 Simpan Koleksi' }}
+            </button>
+            <a href="{{ route('petugas.databuku') }}" class="btn-cancel">Batal</a>
+        </div>
+    </form>
+</div>
+@endsection

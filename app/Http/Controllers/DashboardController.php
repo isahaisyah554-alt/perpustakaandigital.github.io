@@ -2,20 +2,21 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
+use App\Models\Book;
 
 class DashboardController extends Controller
 {
-    public function dashboard(Request $request){
-        return view ('dashboard.dashboard');
+    // 👩 DASHBOARD ANGGOTA
+    public function anggota()
+    {
+        $books = Book::all();
+        return view('dashboard.anggota', compact('books'));
     }
 
-    public function petugas(Request $request){
-        return view ('dashboard.petugas');
+    // 👮 DASHBOARD PETUGAS
+    public function petugas()
+    {
+        $books = Book::all();
+        return view('dashboard.petugas', compact('books'));
     }
-
-    public function kepalaperpustakaan(Request $request){
-        return view ('dashboard.kepalaperpustakaan');
-    }
-
 }

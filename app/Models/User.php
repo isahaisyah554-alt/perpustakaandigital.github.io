@@ -10,16 +10,14 @@ class User extends Authenticatable
 {
     use HasFactory, Notifiable;
 
-    /**
-     * Field yang boleh diisi
-     */
     protected $fillable = [
-        'name',
-        'email',
-        'password',
-        'role' // 🔥 WAJIB ADA
+    'name',
+    'email',
+    'password',
+    'role',
+    'no_hp',     // Tambahkan ini
+    'username',  // Tambahkan ini
     ];
-
     /**
      * Field yang disembunyikan
      */

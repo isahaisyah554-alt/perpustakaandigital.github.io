@@ -4,24 +4,24 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Daftar - Sistem Perpustakaan</title>
-
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
         body {
             margin: 0;
             padding: 0;
-            font-family: 'Inter', Arial, sans-serif;
+            font-family: 'Inter', sans-serif;
             background-color: #f3f4f6;
         }
 
         .daftar {
             position: relative;
             width: 100%;
-            min-height: 100vh; /* Menggunakan min-height agar aman jika konten panjang */
-            overflow-x: hidden;
+            min-height: 100vh;
             display: flex;
             align-items: center;
             justify-content: center;
             padding: 20px 0;
+            overflow: hidden;
         }
 
         /* background blur */
@@ -47,12 +47,14 @@
         .card {
             position: relative;
             z-index: 3;
-            width: 450px;
+            width: 100%;
+            max-width: 450px;
             padding: 40px;
             background: white;
             border-radius: 24px;
             box-shadow: 0 15px 35px rgba(0,0,0,0.1);
             text-align: center;
+            margin: 0 20px;
         }
 
         .title {
@@ -70,7 +72,7 @@
 
         /* Form styling */
         .input-group {
-            margin-bottom: 12px;
+            margin-bottom: 15px;
             text-align: left;
         }
 
@@ -85,18 +87,20 @@
 
         .input {
             width: 100%;
-            height: 45px;
+            height: 48px;
             border-radius: 12px;
             border: 1px solid #E5E7EB;
             padding: 0 15px;
             font-size: 14px;
-            box-sizing: border-box; /* Sangat penting agar padding tidak meluber */
+            box-sizing: border-box;
             transition: all 0.2s;
             outline: none;
+            background: #F9FAFB;
         }
 
         .input:focus {
             border-color: #3B82F6;
+            background: white;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
         }
 
@@ -115,11 +119,8 @@
             transition: background 0.2s;
         }
 
-        .btn:hover {
-            background: #2563EB;
-        }
+        .btn:hover { background: #2563EB; }
 
-        /* Link Login */
         .login-link {
             margin-top: 20px;
             font-size: 14px;
@@ -130,29 +131,6 @@
             color: #3B82F6;
             text-decoration: none;
             font-weight: 600;
-        }
-
-        .login-link a:hover {
-            text-decoration: underline;
-        }
-
-        /* Dekorasi Gambar */
-        .img-decoration {
-            position: absolute;
-            z-index: 2;
-            opacity: 0.6;
-        }
-        .img-left {
-            left: 5%;
-            top: 10%;
-            width: 150px;
-            transform: rotate(-15deg);
-        }
-        .img-right {
-            right: 5%;
-            bottom: 10%;
-            width: 180px;
-            transform: rotate(10deg);
         }
     </style>
 </head>
@@ -165,39 +143,49 @@
         <div class="title">Buat Akun</div>
         <div class="subtitle">Silahkan isi data diri Anda sebagai anggota</div>
 
-        <form method="POST" action="/register">
+        @if ($errors->any())
+            <div style="background: #fee2e2; color: #dc2626; padding: 15px; border-radius: 12px; margin-bottom: 20px; text-align: left; font-size: 14px;">
+                <ul style="margin: 0; padding-left: 20px;">
+                    @foreach ($errors->all() as $error)
+                        <li>{{ $error }}</li>
+                    @endforeach
+                </ul>
+            </div>
+        @endif
+
+        <form method="POST" action="{{ route('register.post') }}">
             @csrf
 
             <div class="input-group">
                 <label class="label">Nama Lengkap</label>
-                <input type="text" name="nama" placeholder="Masukkan nama lengkap" class="input" required>
+                <input type="text" name="name" class="input" placeholder="Masukkan nama" required>
             </div>
 
             <div class="input-group">
-                <label class="label">Nomor Telepon</label>
-                <input type="text" name="no_hp" placeholder="Contoh: 0812345678" class="input" required>
+                <label class="label">No. HP</label>
+                <input type="text" name="no_hp" class="input" placeholder="0812..." required>
             </div>
 
             <div class="input-group">
                 <label class="label">Email</label>
-                <input type="email" name="email" placeholder="nama@email.com" class="input" required>
+                <input type="email" name="email" class="input" placeholder="contoh@mail.com" required>
             </div>
 
             <div class="input-group">
                 <label class="label">Username</label>
-                <input type="text" name="username" placeholder="Buat username unik" class="input" required>
+                <input type="text" name="username" class="input" placeholder="Username" required>
             </div>
 
             <div class="input-group">
                 <label class="label">Password</label>
-                <input type="password" name="password" placeholder="Buat password minimal 6 karakter" class="input" required>
+                <input type="password" name="password" class="input" placeholder="••••••••" required>
             </div>
 
             <button type="submit" class="btn">Daftar Sekarang</button>
         </form>
 
         <div class="login-link">
-            Sudah punya akun? <a href="Auth.login">Masuk di sini</a>
+            Sudah punya akun? <a href="{{ route('login') }}">Masuk</a>
         </div>
     </div>
 </div>
