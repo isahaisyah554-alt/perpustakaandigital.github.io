@@ -8,15 +8,18 @@ class Pinjaman extends Model
 {
     use HasFactory;
 
-    protected $table = 'pinjamen'; // Pakai nama tabel yang ada di database kamu
+    protected $table = 'pinjaman'; // Pakai nama tabel yang ada di database kamu
 
-    protected $fillable = [
-        'user_id',
-        'book_id',
-        'tgl_pinjam',
-        'durasi',
-        'status',
-    ];
+        protected $fillable =
+        [
+            'user_id',
+            'book_id',
+            'tgl_pinjam',
+            'tgl_kembali', // Tambahkan ini
+            'durasi',
+            'status',
+            'denda',       // Tambahkan ini
+        ];
 
     // Relasi ke tabel users
     public function user()

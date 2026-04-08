@@ -30,7 +30,6 @@ class PengembalianController extends Controller
         return view('pengembalian.kembalikanbuku', compact('pinjaman', 'denda'));
     }
 
-    // Proses konfirmasi pengembalian
     public function konfirmasi(Request $request, $id)
     {
         $pinjaman = Pinjaman::findOrFail($id);
@@ -39,11 +38,13 @@ class PengembalianController extends Controller
             abort(403);
         }
 
-        $pinjaman->status = 'dikembalikan';
+        // JANGAN langsung 'dikembalikan'
+        // Ubah ke 'pengajuan_kembali' supaya muncul di dashboard petugas
+        $pinjaman->status = 'pengajuan_kembali';
         $pinjaman->tgl_kembali = now();
         $pinjaman->save();
 
         return redirect()->route('peminjaman-saya')
-                         ->with('success', 'Buku berhasil dikembalikan!');
+                        ->with('success', 'Permintaan pengembalian dikirim! Silakan temui petugas.');
     }
 }

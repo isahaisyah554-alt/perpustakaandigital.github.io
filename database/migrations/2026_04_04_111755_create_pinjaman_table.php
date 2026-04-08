@@ -8,7 +8,7 @@ return new class extends Migration
 {
    public function up(): void
 {
-    Schema::create('pinjamen', function (Blueprint $table) {
+    Schema::create('pinjaman', function (Blueprint $table) {
         $table->id();
 
         // relasi

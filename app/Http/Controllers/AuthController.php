@@ -6,7 +6,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Validator;
 
 class AuthController extends Controller
 {
@@ -22,23 +21,30 @@ class AuthController extends Controller
         return view('Auth.register');
     }
 
-    // PROSES LOGIN (Untuk Anggota, Petugas, Kepala)
+    // PROSES LOGIN
     public function login(Request $request)
     {
         // 1. Validasi Input
         $request->validate([
-            'email' => 'required', // Bisa email atau username tergantung setting, tapi di sini kita pakai email
+            'email' => 'required',
             'password' => 'required',
         ]);
 
-        $credentials = $request->only('email', 'password');
+        // 2. Logika: Cek apakah yang diinput itu format Email atau Username biasa
+        $loginValue = $request->input('email');
+        $loginType = filter_var($loginValue, FILTER_VALIDATE_EMAIL) ? 'email' : 'username';
 
-        // 2. Coba Login
+        $credentials = [
+            $loginType => $loginValue,
+            'password' => $request->password
+        ];
+
+        // 3. Coba Login
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
             $user = Auth::user();
 
-            // 3. Redirect Sesuai Role (Gunakan Route Name yang ada di web.php kamu)
+            // 4. Redirect Sesuai Role
             if ($user->role === 'anggota') {
                 return redirect()->route('dashboard-anggota');
             } elseif ($user->role === 'petugas') {
@@ -47,21 +53,18 @@ class AuthController extends Controller
                 return redirect()->route('dashboard-kepala');
             }
 
-            // Jika role tidak dikenali
-            Auth::logout();
-            return back()->withErrors(['email' => 'Role user tidak dikenali!']);
+            return redirect('/');
         }
 
-        // 4. Jika Gagal
+        // 5. Jika Gagal
         return back()->withErrors([
-            'email' => 'Email atau password yang Anda masukkan salah.',
-        ])->withInput($request->only('email'));
+            'email' => 'Login gagal! Username/Email atau Password salah.',
+        ])->withInput();
     }
 
-    // PROSES REGISTER (Hanya untuk Anggota)
+    // PROSES REGISTER (Khusus Anggota)
     public function register(Request $request)
     {
-        // 1. Validasi semua input dari form register kamu
         $request->validate([
             'name' => 'required|string|max:255',
             'username' => 'required|string|max:255|unique:users',
@@ -70,20 +73,17 @@ class AuthController extends Controller
             'password' => 'required|string|min:6',
         ]);
 
-        // 2. Simpan ke Database
         $user = User::create([
             'name' => $request->name,
             'username' => $request->username,
             'email' => $request->email,
             'no_hp' => $request->no_hp,
-            'password' => Hash::make($request->password), // Password WAJIB di-hash!
-            'role' => 'anggota', // Default saat register adalah anggota
+            'password' => Hash::make($request->password),
+            'role' => 'anggota',
         ]);
 
-        // 3. Langsung Login setelah register
         Auth::login($user);
 
-        // 4. Lempar ke dashboard anggota
         return redirect()->route('dashboard-anggota')->with('success', 'Akun berhasil dibuat!');
     }
 

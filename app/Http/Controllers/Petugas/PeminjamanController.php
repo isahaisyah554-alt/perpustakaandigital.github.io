@@ -12,7 +12,6 @@ class PeminjamanController extends Controller
         $data = Pinjaman::orderBy('created_at', 'desc')->get();
 
         return view('petugas.datapeminjaman', compact('data'));
-        // Eager loading supaya nggak lemot dan data relasi terbawa
         $data = Pinjaman::with(['user', 'buku'])->orderBy('created_at', 'desc')->get();
 
         return view('petugas.peminjaman.index', compact('data'));
