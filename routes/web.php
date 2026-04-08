@@ -2,12 +2,14 @@
 
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\Kepala\DataBukuController as DatabukuKepala;
+use App\Http\Controllers\Kepala\DataPetugasController;
 use App\Http\Controllers\PeminjamanController;
 use App\Http\Controllers\PengembalianController;
-use App\Http\Controllers\Petugas\DatabukuController;
+use App\Http\Controllers\Petugas\DataAnggotaController;
+use App\Http\Controllers\Petugas\DatabukuController as DatabukuPetugas;
 use App\Http\Controllers\Petugas\PeminjamanController as PeminjamanPetugasController;
 use App\Http\Controllers\Petugas\PengembalianController as PengembalianPetugasController;
-
 use Illuminate\Support\Facades\Route;
 
 // --- HALAMAN AWAL ---
@@ -44,12 +46,15 @@ Route::post('pengembalian-konfirmasi/{id}', [PengembalianController::class, 'kon
 Route::prefix('petugas')->group(function () {
 
     // DATA BUKU
-    Route::get('/books', [DatabukuController::class, 'index'])->name('petugas.databuku');
-    Route::get('/books/create', [DatabukuController::class, 'create'])->name('petugas.databuku.create');
-    Route::post('/books/store', [DatabukuController::class, 'store'])->name('petugas.databuku.store');
-    Route::get('/books/edit/{id}', [DatabukuController::class, 'edit'])->name('petugas.databuku.edit');
-    Route::put('/books/update/{id}', [DatabukuController::class, 'update'])->name('petugas.databuku.update');
-    Route::delete('/books/delete/{id}', [DatabukuController::class, 'destroy'])->name('petugas.databuku.destroy');
+    Route::get('/books', [DatabukuPetugas::class, 'index'])->name('petugas.databuku');
+    Route::get('/books/create', [DatabukuPetugas::class, 'create'])->name('petugas.databuku.create');
+    Route::post('/books/store', [DatabukuPetugas::class, 'store'])->name('petugas.databuku.store');
+    Route::get('/books/edit/{id}', [DatabukuPetugas::class, 'edit'])->name('petugas.databuku.edit');
+    Route::put('/books/update/{id}', [DatabukuPetugas::class, 'update'])->name('petugas.databuku.update');
+    Route::delete('/books/delete/{id}', [DatabukuPetugas::class, 'destroy'])->name('petugas.databuku.destroy');
+    // Data Anggota
+    Route::get('/anggota', [DataAnggotaController::class, 'index'])
+        ->name('petugas.anggota');
 
     // PEMINJAMAN (KONFIRMASI PINJAM BARU)
     Route::get('/peminjaman', [PeminjamanPetugasController::class, 'index'])->name('petugas.peminjaman.index');
@@ -62,3 +67,21 @@ Route::prefix('petugas')->group(function () {
     // 🔥 TAMBAHKAN INI: Route untuk tombol "Terima & Verifikasi" di tabel petugas
     Route::post('/pengembalian/{id}/terima', [PengembalianPetugasController::class, 'terima'])->name('petugas.pengembalian.terima');
 });
+
+
+// --- KEPALA PERPUSTAKAAN AREA ---
+Route::prefix('kepala')->group(function () {
+    Route::get('/books', [DatabukuKepala::class, 'index'])->name('kepala.databuku.index');
+
+    // --- BAGIAN PETUGAS ---
+    Route::get('/petugas', [DataPetugasController::class, 'index'])->name('kepala.petugas');
+
+    // 1. DAFTARKAN 'CREATE' DULU (Sebelum yang ada {id})
+    Route::get('/petugas/create', [DataPetugasController::class, 'create'])->name('kepala.petugas.create');
+    Route::post('/petugas', [DataPetugasController::class, 'store'])->name('kepala.petugas.store');
+
+    // 2. BARU DAFTARKAN YANG PAKAI {id}
+    Route::get('/petugas/{id}', [DataPetugasController::class, 'show'])->name('kepala.petugas.show');
+    Route::delete('/petugas/{id}', [DataPetugasController::class, 'destroy'])->name('kepala.petugas.destroy');
+});
+

@@ -31,20 +31,19 @@ class PengembalianController extends Controller
     }
 
     public function konfirmasi(Request $request, $id)
-    {
-        $pinjaman = Pinjaman::findOrFail($id);
+{
+    $pinjaman = Pinjaman::findOrFail($id);
 
-        if ($pinjaman->user_id != Auth::id()) {
-            abort(403);
-        }
+    // Ambil nilai denda yang dihitung di halaman Konfirmasi (dari <input name="denda">)
+    $dendaInput = $request->input('denda', 0);
 
-        // JANGAN langsung 'dikembalikan'
-        // Ubah ke 'pengajuan_kembali' supaya muncul di dashboard petugas
-        $pinjaman->status = 'pengajuan_kembali';
-        $pinjaman->tgl_kembali = now();
-        $pinjaman->save();
+    // Simpan ke database
+    $pinjaman->update([
+        'status' => 'pengajuan_kembali',
+        'tgl_kembali' => now(),
+        'denda' => $dendaInput, // <--- INI KUNCINYA supaya denda tersimpan!
+    ]);
 
-        return redirect()->route('peminjaman-saya')
-                        ->with('success', 'Permintaan pengembalian dikirim! Silakan temui petugas.');
-    }
+    return redirect()->route('peminjaman-saya')->with('success', 'Berhasil diajukan!');
+}
 }

@@ -56,26 +56,26 @@
 <aside class="sidebar">
     <h2>LibManager</h2>
     <ul>
-    <li class="{{ Request::is('dashboard-petugas') ? 'active' : '' }}">
-        <a href="{{ route('dashboard-petugas') }}">Dashboard</a>
-    </li>
+        <li class="{{ Request::is('dashboard-petugas') ? 'active' : '' }}">
+            <a href="{{ route('dashboard-petugas') }}">Dashboard</a>
+        </li>
 
-    <li class="{{ Request::is('petugas/books*') ? 'active' : '' }}">
-        <a href="{{ route('petugas.databuku') }}">Data Buku</a>
-    </li>
+        <li class="{{ Request::is('petugas/books*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.databuku') }}">Data Buku</a>
+        </li>
 
-    <li class="{{ Request::is('anggota*') ? 'active' : '' }}">
-        <a href="#">Data Anggota</a>
-    </li>
+        <li class="{{ Request::is('petugas/anggota*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.anggota') }}">Data Anggota</a>
+        </li>
 
-    <li class="{{ Request::is('petugas/peminjaman*') ? 'active' : '' }}">
-        <a href="{{ route('petugas.peminjaman.index') }}">Peminjaman</a>
-    </li>
+        <li class="{{ Request::is('petugas/peminjaman*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.peminjaman.index') }}">Peminjaman</a>
+        </li>
 
-    <li class="{{ Request::is('petugas/pengembalian*') ? 'active' : '' }}">
-        <a href="{{ route('petugas.pengembalian.index') }}">Pengembalian</a>
-    </li>
-</ul>
+        <li class="{{ Request::is('petugas/pengembalian*') ? 'active' : '' }}">
+            <a href="{{ route('petugas.pengembalian.index') }}">Pengembalian</a>
+        </li>
+    </ul>
 
     <form action="/logout" method="POST" class="logout-form">
         @csrf

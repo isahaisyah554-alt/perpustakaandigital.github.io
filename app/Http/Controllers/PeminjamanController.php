@@ -31,30 +31,41 @@ class PeminjamanController extends Controller
     }
 
     // 3. Simpan Pengajuan Pinjam
-    public function simpan(Request $request)
-    {
-        $request->validate([
-            'book_id'    => 'required|exists:books,id',
-            'tgl_pinjam' => 'required|date',
-            'durasi'     => 'required|integer'
+    // SISI ANGGOTA - Saat klik tombol Pinjam
+public function simpan(Request $request)
+{
+    $request->validate([
+        'book_id'    => 'required|exists:books,id',
+        'tgl_pinjam' => 'required|date',
+        'durasi'     => 'required|integer'
+    ]);
+
+    try {
+        $buku = Book::findOrFail($request->book_id);
+
+        // CEK STOK DULU COI!
+        if ($buku->stok <= 0) {
+            return back()->with('error', 'Waduh, stok bukunya abis ditilep orang!');
+        }
+
+        Pinjaman::create([
+            'user_id'    => Auth::id(),
+            'book_id'    => $request->book_id,
+            'tgl_pinjam' => $request->tgl_pinjam,
+            'durasi'     => $request->durasi,
+            'status'     => 'menunggu',
         ]);
 
-        try {
-            Pinjaman::create([
-                'user_id'    => Auth::id(),
-                'book_id'    => $request->book_id,
-                'tgl_pinjam' => $request->tgl_pinjam,
-                'durasi'     => $request->durasi,
-                'status'     => 'menunggu', // Status awal
-            ]);
+        // KURANGI STOK BUKU (-1)
+        $buku->decrement('stok');
 
-            return redirect()->route('peminjaman-saya')
-                ->with('success', 'Pengajuan berhasil, menunggu konfirmasi petugas');
+        return redirect()->route('peminjaman-saya')
+            ->with('success', 'Pengajuan berhasil, stok buku sudah dipesan!');
 
-        } catch (\Exception $e) {
-            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
-        }
+    } catch (\Exception $e) {
+        return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
     }
+}
 
     // 4. Daftar Pinjaman Aktif (Sedang dipinjam/menunggu)
     public function pinjamanSaya()

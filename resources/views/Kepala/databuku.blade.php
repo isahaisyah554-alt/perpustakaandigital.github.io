@@ -1,0 +1,80 @@
+@extends('layout.kepalaperpustakaan')
+
+@section('title', 'Monitoring Katalog - Kepala')
+
+@section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
+<style>
+    .books-container { padding: 25px; font-family: 'Inter', sans-serif; background: #f8fafc; display: block !important; }
+    .books-header { margin-bottom: 30px; }
+    .books-header h1 { font-weight: 800; font-size: 28px; color: #1e293b; margin: 0; }
+    .books-header p { color: #64748b; font-size: 14px; margin-top: 5px; }
+
+    .action-bar { display: flex; gap: 15px; margin-bottom: 30px; align-items: center; }
+    .search-box {
+        flex: 1; background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+        padding: 0 15px; display: flex; align-items: center; height: 48px;
+    }
+    .search-box input { border: none; outline: none; width: 100%; padding-left: 10px; color: #334155; }
+
+    .book-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 25px; width: 100%;
+    }
+    .book-card { background: white; border-radius: 16px; overflow: hidden; border: 1px solid #e2e8f0; display: flex; flex-direction: column; }
+    .book-cover { width: 100%; height: 280px; position: relative; background: #f1f5f9; }
+    .book-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+    .stok-badge {
+        position: absolute; top: 12px; right: 12px; background: rgba(255, 255, 255, 0.9);
+        padding: 4px 10px; border-radius: 8px; font-size: 11px; font-weight: 700; color: #1e293b;
+    }
+
+    .book-info { padding: 15px; flex-grow: 1; }
+    .book-title { font-weight: 700; font-size: 15px; color: #1e293b; margin-bottom: 4px; }
+    .book-author { font-size: 13px; color: #64748b; }
+</style>
+
+<div class="books-container">
+    <div class="books-header">
+        <h1>Monitoring Katalog Buku</h1>
+        <p>Halaman khusus Kepala Perpustakaan untuk memantau ketersediaan koleksi.</p>
+    </div>
+
+    <div class="action-bar">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass" style="color: #94a3b8;"></i>
+            <input type="text" placeholder="Cari data buku...">
+        </div>
+    </div>
+
+    <div class="book-grid">
+        @forelse($books as $book)
+        <div class="book-card">
+            <div class="book-cover">
+                <span class="stok-badge">Stok: {{ $book->stok_buku }}</span>
+                @if($book->foto && $book->foto !== 'default.jpg')
+                    <img src="{{ asset('storage/buku/' . $book->foto) }}" alt="{{ $book->judul }}">
+                @else
+                    <div style="height:100%; display:flex; align-items:center; justify-content:center; color:#94a3b8;">
+                        <i class="fa-solid fa-image fa-2x"></i>
+                    </div>
+                @endif
+            </div>
+
+            <div class="book-info">
+                <div class="book-title">{{ $book->judul }}</div>
+                <div class="book-author">Oleh: {{ $book->penulis }}</div>
+                <div style="font-size: 11px; color: #94a3b8; margin-top: 5px;">Tahun: {{ $book->tahun_terbit }}</div>
+            </div>
+        </div>
+        @empty
+        <div style="grid-column: 1/-1; text-align: center; padding: 80px 0; color: #94a3b8; background: white; border-radius: 16px;">
+            <p>Tidak ada data buku.</p>
+        </div>
+        @endforelse
+    </div>
+</div>
+@endsection

@@ -1,142 +1,110 @@
 @extends('layout.petugas')
 
-@section('title', 'Data Buku')
+@section('title', 'Katalog Buku')
 
 @section('content')
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+
 <style>
-    /* Container & Header */
-    .books-container { padding: 20px; }
-    .books-header { margin-bottom: 30px; display: flex; justify-content: space-between; align-items: center; }
-    .books-header h1 { font-family: 'Inter', sans-serif; font-weight: 700; font-size: 28px; color: #1F2937; margin: 0; }
-    .books-header p { font-size: 14px; color: #6B7280; margin-top: 5px; }
-
-    /* Alert Success */
-    .alert-success {
-        background: #D1FAE5; border-left: 4px solid #059669; color: #065F46;
-        padding: 15px; border-radius: 12px; margin-bottom: 25px; font-weight: 600;
-        display: flex; align-items: center; gap: 10px; box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+    /* Paksa container keluar dari kungkungan tabel jika ada */
+    .books-container {
+        padding: 25px;
+        font-family: 'Inter', sans-serif;
+        background: #f8fafc;
+        display: block !important; /* Memaksa jadi block, bukan table-cell */
     }
 
-    /* Filter & Search Bar */
-    .filter-box {
-        background: #FFFFFF; border: 1px solid #E5E7EB;
-        border-radius: 16px; padding: 20px;
-        display: flex; gap: 15px; align-items: center; margin-bottom: 30px;
-        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    .books-header { margin-bottom: 30px; }
+    .books-header h1 { font-weight: 800; font-size: 28px; color: #1e293b; margin: 0; }
+
+    .action-bar { display: flex; gap: 15px; margin-bottom: 30px; align-items: center; }
+
+    .search-box {
+        flex: 1; background: white; border: 1px solid #e2e8f0; border-radius: 12px;
+        padding: 0 15px; display: flex; align-items: center; height: 48px;
+    }
+    .search-box input { border: none; outline: none; width: 100%; padding-left: 10px; }
+
+    .btn-add {
+        background: #3b82f6; color: white; padding: 0 20px; height: 48px;
+        border-radius: 12px; text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 600;
     }
 
-    .search-wrapper {
-        background: #F9FAFB; border: 1px solid #D1D5DB; border-radius: 12px;
-        display: flex; align-items: center; padding: 0 16px; height: 45px; flex: 1;
+    /* GRID UTAMA */
+    .book-grid {
+        display: grid !important;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 25px;
+        width: 100%;
     }
 
-    .search-wrapper input { border: none; background: transparent; outline: none; width: 100%; margin-left: 10px; color: #374151; font-size: 14px; }
-
-    .btn-input-buku {
-        background: #3B82F6 !important; color: white !important; padding: 0 24px; height: 45px;
-        border-radius: 12px; text-decoration: none; font-weight: 600;
-        display: flex; align-items: center; gap: 8px; transition: all 0.3s ease;
+    .book-card {
+        background: white; border-radius: 16px; overflow: hidden;
+        border: 1px solid #e2e8f0; transition: 0.3s; display: flex; flex-direction: column;
     }
-    .btn-input-buku:hover { background: #2563EB !important; transform: translateY(-2px); box-shadow: 0 4px 12px rgba(59, 130, 246, 0.3); }
+    .book-card:hover { transform: translateY(-8px); box-shadow: 0 12px 24px rgba(0,0,0,0.1); }
 
-    /* Table Styling */
-    .table-wrapper {
-        background: #FFFFFF; border: 1px solid #E5E7EB;
-        box-shadow: 0px 10px 15px -3px rgba(0, 0, 0, 0.1); border-radius: 16px; overflow: hidden;
+    .book-cover { width: 100%; height: 280px; position: relative; background: #f1f5f9; }
+    .book-cover img { width: 100%; height: 100%; object-fit: cover; }
+
+    .stok-badge {
+        position: absolute; top: 12px; right: 12px;
+        background: rgba(255, 255, 255, 0.9); padding: 4px 10px;
+        border-radius: 8px; font-size: 11px; font-weight: 700; color: #1e293b;
     }
 
-    .custom-table { width: 100%; border-collapse: collapse; }
-    .custom-table thead { background: #F3F4F6; }
-    .custom-table th { padding: 16px 20px; text-align: left; color: #4B5563; font-weight: 700; font-size: 12px; text-transform: uppercase; letter-spacing: 0.05em; }
-    .custom-table td { padding: 16px 20px; color: #4B5563; border-bottom: 1px solid #F3F4F6; font-size: 14px; vertical-align: middle; }
+    .book-info { padding: 15px; flex-grow: 1; }
+    .book-title { font-weight: 700; font-size: 15px; color: #1e293b; margin-bottom: 4px; }
+    .book-author { font-size: 13px; color: #64748b; }
 
-    /* Action Buttons */
-    .action-group { display: flex; gap: 10px; align-items: center; }
-    .btn-edit { background: #FFF7ED; color: #C2410C; padding: 8px 16px; border-radius: 8px; text-decoration: none; font-size: 13px; font-weight: 600; border: 1px solid #FFEDD5; transition: 0.2s; }
-    .btn-delete { background: #FEF2F2; color: #B91C1C; padding: 8px 16px; border-radius: 8px; border: 1px solid #FEE2E2; cursor: pointer; font-size: 13px; font-weight: 600; transition: 0.2s; }
-    .btn-edit:hover { background: #FFEDD5; }
-    .btn-delete:hover { background: #FEE2E2; }
+    .card-actions {
+        display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 15px;
+        border-top: 1px solid #f1f5f9;
+    }
+    .btn-edit-card { background: #eff6ff; color: #3b82f6; text-align: center; padding: 8px; border-radius: 8px; text-decoration: none; font-size: 12px; font-weight: 600; }
+    .btn-delete-card { background: #fef2f2; color: #ef4444; border: none; padding: 8px; border-radius: 8px; font-size: 12px; font-weight: 600; cursor: pointer; }
 </style>
 
 <div class="books-container">
     <div class="books-header">
-        <div>
-            <h1>Daftar Koleksi Buku</h1>
-            <p>Manajemen data buku perpustakaan secara real-time.</p>
-        </div>
+        <h1>Katalog Koleksi</h1>
+        <p>Manajemen buku dengan tampilan kartu.</p>
     </div>
 
-    @if(session('success'))
-        <div class="alert-success">
-            <span>✅</span> {{ session('success') }}
+    <div class="action-bar">
+        <div class="search-box">
+            <i class="fa-solid fa-magnifying-glass"></i>
+            <input type="text" placeholder="Cari buku...">
         </div>
-    @endif
-
-    <div class="filter-box">
-        <div class="search-wrapper">
-            <span>🔍</span>
-            <input type="text" placeholder="Cari judul buku, penulis, atau tahun...">
-        </div>
-        {{-- TOMBOL INPUT - Harus ada class btn-input-buku --}}
-        <a href="{{ route('petugas.databuku.create') }}" class="btn-input-buku">
-            <span>+</span> Input Buku Baru
-        </a>
+        <a href="{{ route('petugas.databuku.create') }}" class="btn-add">+ Tambah Buku</a>
     </div>
 
-    <div class="table-wrapper">
-        <table class="custom-table">
-            <thead>
-                <tr>
-                    <th>Cover</th>
-                    <th>ID Buku</th>
-                    <th>Informasi Buku</th>
-                    <th>Penulis</th>
-                    <th>Tahun</th>
-                    <th>Stok</th>
-                    <th>Aksi</th>
-                </tr>
-            </thead>
-            <tbody>
-                @forelse($books as $book)
-                <tr>
-                    <td>
-    @if($book->foto && $book->foto !== 'default.jpg')
-        {{-- Menampilkan foto asli dari folder storage/buku --}}
-        <img src="{{ asset('storage/buku/' . $book->foto) }}"
-             style="width: 50px; height: 70px; object-fit: cover; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
-    @else
-        {{-- Tampilan jika tidak ada foto --}}
-        <div style="width: 50px; height: 70px; background: #f3f4f6; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; color: #9ca3af; text-align: center; padding: 5px; border: 1px dashed #d1d5db;">
-            No Cover
+    <div class="book-grid">
+        @forelse($books as $book)
+        <div class="book-card">
+            <div class="book-cover">
+                <span class="stok-badge">Stok: {{ $book->stok_buku }}</span>
+                @if($book->foto && $book->foto !== 'default.jpg')
+                    <img src="{{ asset('storage/buku/' . $book->foto) }}">
+                @else
+                    <div style="height:100%; display:flex; align-items:center; justify-content:center; color:#94a3b8;">No Cover</div>
+                @endif
+            </div>
+            <div class="book-info">
+                <div class="book-title">{{ $book->judul }}</div>
+                <div class="book-author">{{ $book->penulis }}</div>
+            </div>
+            <div class="card-actions">
+                <a href="{{ route('petugas.databuku.edit', $book->id) }}" class="btn-edit-card">Edit</a>
+                <form action="{{ route('petugas.databuku.destroy', $book->id) }}" method="POST">
+                    @csrf @method('DELETE')
+                    <button type="submit" class="btn-delete-card" style="width:100%">Hapus</button>
+                </form>
+            </div>
         </div>
-    @endif
-</td>
-                    <td>BK-{{ str_pad($book->id, 4, '0', STR_PAD_LEFT) }}</td>
-                    <td>
-                        <div style="font-weight: 700; color: #111827;">{{ $book->judul }}</div>
-                    </td>
-                    <td>{{ $book->penulis }}</td>
-                    <td>{{ $book->tahun_terbit }}</td>
-                    <td>{{ $book->stok_buku }} unit</td>
-                    <td>
-                        <div class="action-group">
-                            {{-- TOMBOL EDIT --}}
-                            <a href="{{ route('petugas.databuku.edit', $book->id) }}" class="btn-edit">Edit</a>
-
-                            {{-- FORM DELETE - Harus Method POST & ada @method('DELETE') --}}
-                            <form action="{{ route('petugas.databuku.destroy', $book->id) }}" method="POST" onsubmit="return confirm('Hapus buku ini?')">
-                                @csrf
-                                @method('DELETE')
-                                <button type="submit" class="btn-delete">Hapus</button>
-                            </form>
-                        </div>
-                    </td>
-                </tr>
-                @empty
-                <tr><td colspan="7" style="text-align: center; padding: 40px;">Data Kosong</td></tr>
-                @endforelse
-            </tbody>
-        </table>
+        @empty
+        <p>Kosong</p>
+        @endforelse
     </div>
 </div>
 @endsection

@@ -4,7 +4,6 @@
 
 @section('page-css')
 <style>
-    /* --- KATALOG CONTENT STYLE --- */
     .breadcrumb {
         font-size: 14px;
         color: var(--text-muted);
@@ -124,7 +123,7 @@
     <div class="books-grid">
         @foreach($books as $item)
     <div class="card">
-        <img src="{{ $item->foto ? asset('storage/' . $item->foto) : 'https://via.placeholder.com/150x240?text='.$item->judul }}" alt="Buku">
+        <img src="{{ $item->foto ? asset('storage/buku/' . $item->foto) : 'https://via.placeholder.com/150x240?text='.$item->judul }}">
         <p class="title">{{ $item->judul }}</p>
         <p class="info">{{ $item->penulis }} • {{ $item->tahun_terbit }}</p>
         @if($item->stok_buku > 0)

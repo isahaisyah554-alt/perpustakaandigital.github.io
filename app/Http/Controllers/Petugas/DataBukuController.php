@@ -36,10 +36,9 @@ class DatabukuController extends Controller
         $namaFoto = 'default.jpg';
 
         if ($request->hasFile('foto')) {
-            $foto = $request->file('foto');
-            $namaFoto = time() . '_' . $foto->getClientOriginalName();
-            $foto->storeAs('public/buku', $namaFoto);
-        }
+    $path = $request->file('foto')->store('buku', 'public');
+    $namaFoto = basename($path);
+}
 
         Book::create([
             'judul' => $request->judul,

@@ -8,41 +8,54 @@ use Carbon\Carbon;
 
 class PengembalianController extends Controller
 {
-    public function index()
+        public function index()
     {
+        // Ambil data yang statusnya 'pengajuan_kembali' (baru mau balikin)
+        // atau 'dikembalikan' (riwayat yang sudah kelar)
+        $pengembalian = Pinjaman::whereHas('buku')
+                        ->whereIn('status', ['pengajuan_kembali', 'dikembalikan'])
+                        ->with(['user', 'buku'])
+                        ->latest()
+                        ->get();
 
-        $pengembalian = Pinjaman::with(['user', 'buku'])->latest()->get();
         return view('petugas.pengembalian', compact('pengembalian'));
     }
 
-    public function terima($id)
+    // SISI PETUGAS - Saat klik tombol Verifikasi (Buku balik)
+public function terima($id)
 {
-    try {
-        $pinjaman = Pinjaman::with('buku')->findOrFail($id);
+    $pinjaman = Pinjaman::with('buku')->findOrFail($id);
 
-        // 1. Hitung denda
-        $jatuh_tempo = Carbon::parse($pinjaman->tgl_pinjam)->addDays($pinjaman->durasi);
-        $denda = 0;
-        if (Carbon::now()->gt($jatuh_tempo)) {
-            $hari_terlambat = Carbon::now()->diffInDays($jatuh_tempo);
-            $denda = $hari_terlambat * 1000;
-        }
-
-        // 2. Update status Pinjaman (Gunakan update agar lebih cepat)
-        $pinjaman->update([
-            'status' => 'dikembalikan',
-            'tgl_kembali' => now(),
-            'denda' => $denda
-        ]);
-
-        // 3. Update Stok Buku
-        if ($pinjaman->buku) {
-        }
-
-        return back()->with('success', 'Pengembalian diverifikasi! Data masuk ke riwayat anggota.');
-
-    } catch (\Exception $e) {
-        return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+    // Mencegah stok nambah berkali-kali kalau tombol diklik ulang
+    if ($pinjaman->status == 'dikembalikan') {
+        return back()->with('error', 'Data ini sudah diproses sebelumnya.');
     }
+
+    $jatuh_tempo = Carbon::parse($pinjaman->tgl_pinjam)->addDays($pinjaman->durasi);
+    $tgl_kembali = Carbon::now();
+    $denda = 0;
+
+    if ($tgl_kembali->gt($jatuh_tempo)) {
+        $hari_terlambat = $jatuh_tempo->diffInDays($tgl_kembali);
+        $denda = $hari_terlambat * 1000;
+    }
+
+    // UPDATE DATA PINJAMAN
+    $pinjaman->status = 'dikembalikan';
+    $pinjaman->tgl_kembali = $tgl_kembali;
+    $pinjaman->denda = $denda;
+    $pinjaman->save();
+
+    // TAMBAH STOK BUKU (+1)
+    if ($pinjaman->buku) {
+        $pinjaman->buku->increment('stok_buku');
+    }
+
+    return back()->with('success', 'Buku diterima! Stok nambah 1. Denda: Rp ' . number_format($denda,0,',','.'));
 }
+
 }
+
+
+
+
