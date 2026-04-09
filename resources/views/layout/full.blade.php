@@ -52,15 +52,25 @@
 <body>
 
     <nav class="navbar">
-        <h1>LibManager</h1>
-        <div class="profile-area">
-            <div style="text-align: right;">
-                <span style="display: block; font-weight: 600; font-size: 0.9rem;">Angelica</span>
-                <span style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">Anggota Aktif</span>
-            </div>
-            <img src="https://ui-avatars.com/api/?name=Angelica&background=3B82F6&color=fff" class="avatar">
+    <h1>LibManager</h1>
+    <div class="profile-area">
+        <div style="text-align: right;">
+            {{-- Manggil Nama dari User yang sedang Login --}}
+            <span style="display: block; font-weight: 600; font-size: 0.9rem;">
+                {{ Auth::user()->name }}
+            </span>
+
+            {{-- Manggil Role secara otomatis (Anggota/Petugas/Kepala) --}}
+            <span style="font-size: 0.75rem; color: #16a34a; font-weight: 600;">
+                {{ ucfirst(Auth::user()->role) }} Aktif
+            </span>
         </div>
-    </nav>
+
+        {{-- Avatar juga otomatis berubah inisialnya sesuai nama user --}}
+        <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3B82F6&color=fff"
+             class="avatar" alt="profile">
+    </div>
+</nav>
 
     <main class="content-wrapper">
         @yield('content')

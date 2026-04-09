@@ -128,12 +128,13 @@
     <td>
         <strong>{{ $p->user->name ?? 'User Hilang' }}</strong>
         <br>
-        <small class="text-muted">ID: {{ $p->user_id }}</small>
+        <small class="text-muted">ID User: {{ $p->user_id }}</small>
     </td>
 
     <td>
         <span style="color: #1E293B; font-weight: 600;">
-            {{ $p->buku->judul ?? 'Buku Dihapus' }}
+            {{-- PERBAIKAN: Ganti $p->buku jadi $p->book --}}
+            {{ $p->book->judul ?? 'Buku Dihapus/Tidak Ada' }}
         </span>
         <br>
         <small class="text-muted">ID Buku: {{ $p->book_id }}</small>
@@ -146,10 +147,12 @@
             <span class="badge bg-pinjam">Sedang Dipinjam</span>
         @elseif($p->status == 'ditolak')
             <span class="badge bg-telat">Ditolak</span>
+        @elseif($p->status == 'dikembalikan')
+            <span class="badge bg-pinjam" style="background:#dcfce7; color:#15803d;">Sudah Kembali</span>
         @endif
     </td>
 
-    <td>
+    <td style="text-align: center;">
         @if($p->status == 'menunggu')
         <div class="btn-group">
             <form action="{{ route('petugas.peminjaman.terima', $p->id) }}" method="POST">
@@ -163,7 +166,7 @@
             </form>
         </div>
         @else
-            <span style="color:#94A3B8;">Selesai</span>
+            <span style="color:#94A3B8; font-size: 12px;">✔️ Terverifikasi</span>
         @endif
     </td>
 </tr>

@@ -8,17 +8,17 @@ class Pinjaman extends Model
 {
     use HasFactory;
 
-    protected $table = 'pinjaman'; // Pakai nama tabel yang ada di database kamu
+    protected $table = 'pinjaman';
 
         protected $fillable =
         [
             'user_id',
             'book_id',
             'tgl_pinjam',
-            'tgl_kembali', // Tambahkan ini
+            'tgl_kembali',
             'durasi',
             'status',
-            'denda',       // Tambahkan ini
+            'denda',
         ];
 
     // Relasi ke tabel users
@@ -28,7 +28,7 @@ class Pinjaman extends Model
     }
 
     // Relasi ke tabel books (Pastiin nama modelnya 'Book')
-    public function buku()
+    public function book()
     {
         return $this->belongsTo(Book::class, 'book_id');
     }

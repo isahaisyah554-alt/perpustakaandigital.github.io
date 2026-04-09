@@ -33,30 +33,34 @@
     @forelse($pinjaman as $item)
         <div class="book-item">
             <div class="book-cover">
-                @if($item->buku && $item->buku->cover)
-                    <img src="{{ asset('storage/' . $item->buku->cover) }}" alt="Cover Buku" style="width:100%; height:100%; border-radius:4px;">
+                {{-- PERBAIKAN 1: Ganti 'buku' jadi 'book' & path foto --}}
+                @if($item->book && $item->book->foto)
+                    <img src="{{ asset('storage/buku/' . $item->book->foto) }}" alt="Cover Buku" style="width:100%; height:100%; border-radius:4px; object-fit: cover;">
                 @else
-                    Cover Buku
+                    <div style="text-align:center; font-size:9px;">No Cover</div>
                 @endif
             </div>
-            <div class="book-details">
-    <p style="color:red;">ID: {{ $item->id }}</p> {{-- TAMBAHKAN INI --}}
 
-    <p class="book-title">{{ $item->buku ? $item->buku->judul : 'Judul Buku' }}</p>
+            <div class="book-details">
+                <p style="color:red; font-size: 11px; margin-bottom: 5px;">ID Pinjam: {{ $item->id }}</p>
+
+                {{-- PERBAIKAN 2: Ganti 'buku' jadi 'book' --}}
+                <p class="book-title">{{ $item->book ? $item->book->judul : 'Judul Tidak Ditemukan' }}</p>
+
                 <p class="book-info">
                     Dipinjam: {{ \Carbon\Carbon::parse($item->tgl_pinjam)->translatedFormat('d M Y') }} <br>
                     Batas Kembali: {{ \Carbon\Carbon::parse($item->tgl_pinjam)->addDays($item->durasi)->translatedFormat('d M Y') }}
+
                     @if($item->status == 'dipinjam' && \Carbon\Carbon::now()->gt(\Carbon\Carbon::parse($item->tgl_pinjam)->addDays($item->durasi)))
                         <br><span style="color: #D97706; font-weight: bold;">(Terlambat {{ \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($item->tgl_pinjam)->addDays($item->durasi)) }} Hari)</span>
                     @endif
                 </p>
 
-                {{-- Tombol Kembalikan hanya muncul kalau status dipinjam --}}
                 @if($item->status == 'dipinjam')
-                <a href="{{ route('pengembalian-buku', ['id' => $item->id]) }}" class="btn-return">
-                    Kembalikan
-                </a>
-            @endif
+                    <a href="{{ route('pengembalian-buku', ['id' => $item->id]) }}" class="btn-return">
+                        Kembalikan Buku
+                    </a>
+                @endif
             </div>
 
             {{-- Label status --}}
@@ -70,22 +74,22 @@
                 @endif
             ">
                 @if($item->status == 'dipinjam')
-                    Aktif
+                    Aktif (Diterima)
                 @elseif($item->status == 'menunggu')
-                    Menunggu
+                    Menunggu Verifikasi
                 @elseif($item->status == 'ditolak')
                     Ditolak
                 @endif
             </div>
         </div>
     @empty
-        <p>Belum ada peminjaman.</p>
+        <p style="text-align:center; color: #94a3b8; padding: 20px;">Kamu tidak memiliki pinjaman aktif.</p>
     @endforelse
 </div>
 
 <h2 class="section-title" style="margin-top: 40px;">Informasi</h2>
 <div class="info-box">
-    <p>• Durasi peminjaman maksimal 30 hari.</p>
-    <p>• Maksimal meminjam 2 buku secara bersamaan.</p>
+    <p>• Durasi peminjaman maksimal {{ $pinjaman->first()->durasi ?? 30 }} hari.</p>
+    <p>• Pastikan mengembalikan buku sebelum jatuh tempo untuk menghindari denda.</p>
 </div>
 @endsection

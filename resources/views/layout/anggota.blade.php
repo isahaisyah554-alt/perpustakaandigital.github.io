@@ -121,10 +121,12 @@
             <h1>Sistem Perpustakaan</h1>
             <div class="profile-area">
                 <div class="profile-info">
-                    <span class="name">Angelica</span>
+                    {{-- Mengambil nama dari kolom 'name' di tabel users --}}
+                    <span class="name">{{ Auth::user()->name }}</span>
                     <span class="role">Anggota Aktif</span>
                 </div>
-                <img src="https://ui-avatars.com/api/?name=Angelica&background=3B82F6&color=fff" alt="Avatar" class="avatar">
+                {{-- Menggunakan UI-Avatars agar foto profil otomatis sesuai inisial nama user --}}
+                <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=3B82F6&color=fff" alt="Avatar" class="avatar">
             </div>
         </header>
 

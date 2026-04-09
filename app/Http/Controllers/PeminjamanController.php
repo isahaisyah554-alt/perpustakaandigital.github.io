@@ -30,57 +30,59 @@ class PeminjamanController extends Controller
         return view('peminjaman.peminjamanbuku', compact('buku'));
     }
 
-    // 3. Simpan Pengajuan Pinjam
-    // SISI ANGGOTA - Saat klik tombol Pinjam
-public function simpan(Request $request)
-{
-    $request->validate([
-        'book_id'    => 'required|exists:books,id',
-        'tgl_pinjam' => 'required|date',
-        'durasi'     => 'required|integer'
-    ]);
-
-    try {
-        $buku = Book::findOrFail($request->book_id);
-
-        // CEK STOK DULU COI!
-        if ($buku->stok <= 0) {
-            return back()->with('error', 'Waduh, stok bukunya abis ditilep orang!');
-        }
-
-        Pinjaman::create([
-            'user_id'    => Auth::id(),
-            'book_id'    => $request->book_id,
-            'tgl_pinjam' => $request->tgl_pinjam,
-            'durasi'     => $request->durasi,
-            'status'     => 'menunggu',
+    // 3. Simpan Pengajuan Pinjam (Sisi Anggota)
+    public function simpan(Request $request)
+    {
+        $request->validate([
+            'book_id'    => 'required|exists:books,id',
+            'tgl_pinjam' => 'required|date',
+            'durasi'     => 'required|integer|min:1'
         ]);
 
-        // KURANGI STOK BUKU (-1)
-        $buku->decrement('stok');
+        try {
+            // Ambil data buku terbaru
+            $buku = Book::findOrFail($request->book_id);
+            $buku->refresh(); // MEMASTIKAN stok yang dibaca adalah yang terbaru di DB
 
-        return redirect()->route('peminjaman-saya')
-            ->with('success', 'Pengajuan berhasil, stok buku sudah dipesan!');
+            // CEK STOK (Ganti ke < 1 biar lebih pasti)
+            if ((int)$buku->stok_buku< 1) {
+                return back()->with('error', 'Waduh, stok bukunya abis ditilep orang! (Stok saat ini: ' . $buku->stok_buku . ')');
+            }
 
-    } catch (\Exception $e) {
-        return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+            // Simpan data pinjaman
+            Pinjaman::create([
+                'user_id'    => Auth::id(),
+                'book_id'    => $request->book_id,
+                'tgl_pinjam' => $request->tgl_pinjam,
+                'durasi'     => $request->durasi,
+                'status'     => 'menunggu',
+            ]);
+
+            // KURANGI STOK BUKU
+            $buku->decrement('stok_buku');
+
+            return redirect()->route('peminjaman-saya')
+                ->with('success', 'Pengajuan berhasil! Stok buku otomatis berkurang.');
+
+        } catch (\Exception $e) {
+            return back()->with('error', 'Terjadi kesalahan: ' . $e->getMessage());
+        }
     }
-}
 
-    // 4. Daftar Pinjaman Aktif (Sedang dipinjam/menunggu)
+    // 4. Daftar Pinjaman Aktif
     public function pinjamanSaya()
     {
-        $pinjaman = Pinjaman::with('buku')
+        // Pastikan relasi di model namanya 'book'
+        $pinjaman = Pinjaman::with('book')
                             ->where('user_id', Auth::id())
-                            ->whereIn('status', ['menunggu', 'dipinjam', 'pengajuan_kembali']) // Tampilkan yang belum selesai
+                            ->whereIn('status', ['menunggu', 'dipinjam', 'pengajuan_kembali'])
                             ->latest()
                             ->get();
 
         return view('peminjaman.pinjamansaya', compact('pinjaman'));
     }
 
-    // app/Http/Controllers/PeminjamanController.php (Sisi Anggota)
-
+    // 5. Proses Kembalikan Buku (Lapor ke Petugas)
     public function kembalikanBuku($id)
     {
         $pinjaman = Pinjaman::findOrFail($id);
@@ -89,23 +91,20 @@ public function simpan(Request $request)
             return back()->with('error', 'Buku tidak dalam status bisa dikembalikan.');
         }
 
-        // Pakai update untuk memastikan tersimpan
         $pinjaman->update([
             'status' => 'pengajuan_kembali',
-            'tgl_kembali' => now() // Set tanggal lapor sekarang
+            'tgl_kembali' => now()
         ]);
 
         return redirect()->route('peminjaman-saya')
                         ->with('success', 'Permintaan terkirim! Silakan serahkan buku ke petugas.');
     }
 
-    // app/Http/Controllers/PeminjamanController.php
-
+    // 6. Riwayat Pinjaman
     public function riwayatpinjaman()
     {
-        // Mengambil data yang statusnya sudah FINAL 'dikembalikan'
-        $riwayat = Pinjaman::with('buku')
-                            ->where('user_id', \Illuminate\Support\Facades\Auth::id())
+        $riwayat = Pinjaman::with('book')
+                            ->where('user_id', Auth::id())
                             ->where('status', 'dikembalikan')
                             ->latest()
                             ->get();

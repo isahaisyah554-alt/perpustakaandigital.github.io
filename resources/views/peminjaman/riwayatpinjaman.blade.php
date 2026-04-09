@@ -116,91 +116,63 @@
         </thead>
 
         <tbody>
-            @forelse($riwayat as $key => $r)
-            <tr>
-                <td>{{ $key + 1 }}</td>
+    @forelse($riwayat as $key => $r)
+    <tr>
+        <td>{{ $key + 1 }}</td>
 
-                <td>
-                    <div class="book-cell">
-                        <div class="cover-img">
-                            @if($r->buku && $r->buku->cover)
-                                <img src="{{ asset('storage/' . $r->buku->cover) }}"
-                                     style="width:100%; height:100%; object-fit:cover;">
-                            @else
-                                <div style="font-size:10px; text-align:center;">No Img</div>
-                            @endif
-                        </div>
-                        <span>{{ $r->buku->judul ?? 'Tidak ada' }}</span>
-                    </div>
-                </td>
-
-                <td>
-                    {{ \Carbon\Carbon::parse($r->tgl_pinjam)->translatedFormat('d M Y') }}
-                </td>
-
-                <td>
-                    {{ $r->tgl_kembali
-                        ? \Carbon\Carbon::parse($r->tgl_kembali)->translatedFormat('d M Y')
-                        : '-' }}
-                </td>
-
-                {{-- STATUS --}}
-                <td>
-                    @php
-                        $jatuh_tempo = \Carbon\Carbon::parse($r->tgl_pinjam)->addDays($r->durasi);
-                    @endphp
-
-                    @if($r->tgl_kembali)
-                        @php
-                            $tgl_kembali = \Carbon\Carbon::parse($r->tgl_kembali);
-                        @endphp
-
-                        @if($tgl_kembali->gt($jatuh_tempo))
-                            <span class="badge late">Terlambat</span>
-                        @else
-                            <span class="badge returned">Tepat Waktu</span>
-                        @endif
+        <td>
+            <div class="book-cell">
+                <div class="cover-img">
+                    {{-- GANTI: $r->buku jadi $r->book --}}
+                    @if($r->book && $r->book->foto)
+                        <img src="{{ asset('storage/' . $r->book->foto) }}"
+                             style="width:100%; height:100%; object-fit:cover;">
                     @else
-                        <span class="badge pending">Belum Kembali</span>
+                        <div style="font-size:10px; text-align:center; padding-top:15px;">No Img</div>
                     @endif
-                </td>
+                </div>
+                {{-- GANTI: $r->buku jadi $r->book --}}
+                <span>{{ $r->book->judul ?? 'Judul Tidak Ditemukan' }}</span>
+            </div>
+        </td>
 
-                        {{-- Ganti bagian <td> denda dengan ini --}}
+        <td>
+            {{ \Carbon\Carbon::parse($r->tgl_pinjam)->translatedFormat('d M Y') }}
+        </td>
+
+        <td>
+            {{ $r->tgl_kembali
+                ? \Carbon\Carbon::parse($r->tgl_kembali)->translatedFormat('d M Y')
+                : '-' }}
+        </td>
+
+        {{-- ... sisanya (status & denda) sudah benar logikanya ... --}}
         <td>
             @php
                 $jatuh_tempo = \Carbon\Carbon::parse($r->tgl_pinjam)->addDays($r->durasi);
-                $tampil_denda = 0;
-
-                if ($r->status == 'dikembalikan') {
-                    // Jika sudah dikembalikan, ambil angka yang sudah FIX di database
-                    $tampil_denda = $r->denda;
-                } else {
-                    // Jika masih dipinjam atau proses balik, hitung live sampai detik ini
-                    if (now()->gt($jatuh_tempo)) {
-                        $selisih = now()->diffInDays($jatuh_tempo);
-                        $tampil_denda = $selisih * 1000;
-                    }
-                }
             @endphp
+            @if($r->tgl_kembali)
+                @if(\Carbon\Carbon::parse($r->tgl_kembali)->gt($jatuh_tempo))
+                    <span class="badge late">Terlambat</span>
+                @else
+                    <span class="badge returned">Tepat Waktu</span>
+                @endif
+            @else
+                <span class="badge pending">Proses</span>
+            @endif
+        </td>
 
-            @if($tampil_denda > 0)
-                <span class="text-denda" style="color: #ef4444; font-weight: bold;">
-                    Rp {{ number_format($tampil_denda, 0, ',', '.') }}
-                </span>
+        <td>
+            @if($r->denda > 0)
+                <span class="text-denda">Rp {{ number_format($r->denda, 0, ',', '.') }}</span>
             @else
                 <span style="color:#94a3b8;">0</span>
             @endif
         </td>
-
-            </tr>
-            @empty
-            <tr>
-                <td colspan="6" style="text-align:center; padding:50px;">
-                    Belum ada riwayat
-                </td>
-            </tr>
-            @endforelse
-        </tbody>
+    </tr>
+    @empty
+    @endforelse
+</tbody>
     </table>
 </section>
 @endsection

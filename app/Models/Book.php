@@ -13,7 +13,7 @@ class Book extends Model
     'foto',
     'judul',
     'penulis',
-    'tahun_terbit', // Wajib ada di sini!
+    'tahun_terbit', 
     'stok_buku'
     ];
 }

@@ -194,7 +194,7 @@
             <div class="book-details">
                 <h3>{{ $buku->judul }}</h3>
                 <p>Penulis: {{ $buku->penulis }}</p>
-                <div class="badge-ready">Stok: {{ $buku->stok }} Buku Tersedia</div>
+                <div class="badge-ready">Stok: {{ $buku->stok_buku }} Buku Tersedia</div>
             </div>
         </div>
 

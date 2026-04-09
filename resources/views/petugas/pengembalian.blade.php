@@ -27,7 +27,7 @@
                         <strong>{{ $p->user->name }}</strong><br>
                         <small style="color: #94a3b8;">ID: {{ $p->user_id }}</small>
                     </td>
-                    <td style="padding: 15px;">{{ $p->buku->judul ?? 'Buku Dihapus' }}</td>
+                    <td style="padding: 15px;">{{ $p->book->judul ?? 'Buku Dihapus' }}</td>
 
                     {{-- TANGGAL JATUH TEMPO --}}
                     <td style="padding: 15px; text-align: center;">

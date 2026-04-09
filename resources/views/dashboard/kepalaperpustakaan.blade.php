@@ -39,48 +39,46 @@
                 </tr>
             </thead>
             <tbody>
-                @forelse($semua_pinjaman as $p)
-                <tr>
-                    <td>
-                        <div style="font-weight: 600; color: var(--text-main);">
-                            {{ $p->user->name ?? 'User Dihapus' }}
-                        </div>
-                        <small style="color: var(--text-muted);">ID: #{{ $p->user->id ?? '-' }}</small>
-                    </td>
-                    <td>{{ $p->buku->judul ?? 'Buku Dihapus' }}</td>
+    @forelse($semua_pinjaman as $p)
+    <tr>
+        <td>
+            <div style="font-weight: 600; color: var(--text-main);">
+                {{ $p->user->name ?? 'User Dihapus' }}
+            </div>
+            <small style="color: var(--text-muted);">ID: #{{ $p->user->id ?? '-' }}</small>
+        </td>
 
-                    {{-- Tgl Pinjam --}}
-                    <td>{{ \Carbon\Carbon::parse($p->created_at)->format('d/m/Y') }}</td>
+        {{-- PERBAIKAN 1: Ganti 'buku' jadi 'book' --}}
+        <td>{{ $p->book->judul ?? 'Buku Dihapus' }}</td>
 
-                    {{-- Tgl Kembali / Jatuh Tempo --}}
-                    <td>
-                        @if($p->status == 'dikembalikan')
-                            <span style="color: var(--success);">
-                                {{ \Carbon\Carbon::parse($p->updated_at)->format('d/m/Y') }}
-                            </span>
-                        @else
-                            <span style="color: var(--danger);">
-                                {{ \Carbon\Carbon::parse($p->tanggal_kembali)->format('d/m/Y') }}
-                            </span>
-                        @endif
-                    </td>
+        <td>{{ \Carbon\Carbon::parse($p->tgl_pinjam)->format('d/m/Y') }}</td>
 
-                    <td>
-                        @if($p->status == 'dikembalikan')
-                            <span class="badge bg-success">Sudah Dikembalikan</span>
-                        @else
-                            <span class="badge bg-warning">Masih Dipinjam</span>
-                        @endif
-                    </td>
-                </tr>
-                @empty
-                <tr>
-                    <td colspan="5" style="text-align: center; color: #94a3b8; padding: 40px;">
-                        Belum ada aktivitas transaksi dari anggota.
-                    </td>
-                </tr>
-                @endforelse
-            </tbody>
+        <td>
+            @if($p->status == 'dikembalikan')
+                <span style="color: var(--success);">
+                    {{-- Pakai tgl_kembali yang asli dari DB --}}
+                    {{ $p->tgl_kembali ? \Carbon\Carbon::parse($p->tgl_kembali)->format('d/m/Y') : '-' }}
+                </span>
+            @else
+                {{-- Hitung jatuh tempo: tgl_pinjam + durasi --}}
+                <span style="color: var(--danger);">
+                    {{ \Carbon\Carbon::parse($p->tgl_pinjam)->addDays($p->durasi)->format('d/m/Y') }}
+                </span>
+            @endif
+        </td>
+
+        <td>
+            @if($p->status == 'dikembalikan')
+                <span class="badge bg-success" style="background: #dcfce7; color: #15803d; padding: 5px 10px; border-radius: 6px;">Sudah Dikembalikan</span>
+            @else
+                <span class="badge bg-warning" style="background: #fef9c3; color: #92400e; padding: 5px 10px; border-radius: 6px;">Masih Dipinjam</span>
+            @endif
+        </td>
+    </tr>
+    @empty
+    {{-- ... empty state ... --}}
+    @endforelse
+</tbody>
         </table>
     </div>
 </div>

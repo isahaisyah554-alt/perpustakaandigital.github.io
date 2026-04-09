@@ -12,7 +12,7 @@ class PengembalianController extends Controller
     public function kembalikan($id)
     {
         // GANTI 'book' jadi 'buku'
-        $pinjaman = Pinjaman::with('buku', 'user')->findOrFail($id);
+        $pinjaman = Pinjaman::with('book', 'user')->findOrFail($id);
 
         // Hanya user pemilik yang boleh akses
         if ($pinjaman->user_id != Auth::id()) {

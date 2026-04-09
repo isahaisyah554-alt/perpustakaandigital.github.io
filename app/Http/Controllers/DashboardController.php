@@ -10,27 +10,33 @@ class DashboardController extends Controller
     // --- DASHBOARD ANGGOTA ---
     public function anggota()
     {
-        // Mengambil semua data buku agar bisa tampil di halaman anggota
-        $books = Book::all();
+        // Hapus baris $books = \App\Models\Book::all(); <-- INI YANG DIHAPUS
 
-        // Pastikan file ini ada di: resources/views/dashboard/anggota.blade.php
-        return view('dashboard.anggota', compact('books'));
+        // Ambil data pinjaman aktif saja
+        $pinjamanAktif = \App\Models\Pinjaman::where('user_id', auth()->id())
+                            ->where('status', 'dipinjam')
+                            ->with('book')
+                            ->get();
+
+        $jumlahDipinjam = $pinjamanAktif->count();
+        return view('dashboard.anggota', compact('pinjamanAktif', 'jumlahDipinjam'));
     }
-
     // --- DASHBOARD PETUGAS ---
     public function petugas()
     {
-        // Petugas juga butuh lihat data buku (untuk edit/hapus)
-        $books = Book::all();
+        // Ambil semua data buku
+        $books = \App\Models\Book::all();
 
-        // Pastikan file ini ada di: resources/views/dashboard/petugas.blade.php
-        return view('dashboard.petugas', compact('books'));
+        // Ambil jumlah user dengan role anggota biar card-nya isi data real
+        $total_users = \App\Models\User::where('role', 'anggota')->count();
+
+        // Kirim kedua datanya ke view
+        return view('dashboard.petugas', compact('books', 'total_users'));
     }
-
     // --- DASHBOARD KEPALA PERPUSTAKAAN ---
     public function kepala()
     {
-        $semua_pinjaman = Pinjaman::with(['user', 'buku'])->latest()->get();
+        $semua_pinjaman = Pinjaman::with(['user', 'book'])->latest()->get();
 
         // Tambahin data statistik ringkas
         $total_buku = Book::count();
