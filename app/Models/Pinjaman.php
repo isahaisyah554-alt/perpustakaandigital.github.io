@@ -27,7 +27,7 @@ class Pinjaman extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
-    // Relasi ke tabel books (Pastiin nama modelnya 'Book')
+    // Relasi ke tabel books
     public function book()
     {
         return $this->belongsTo(Book::class, 'book_id');

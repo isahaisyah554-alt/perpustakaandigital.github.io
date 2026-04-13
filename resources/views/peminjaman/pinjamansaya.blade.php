@@ -8,9 +8,9 @@
     .loan-container { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.03); }
 
     .book-item { display: flex; align-items: center; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; margin-bottom: 16px; position: relative; }
-    .book-cover { width: 90px; height: 120px; background: #D1D5DB; border-radius: 4px; display: flex; align-items: center; justify-content: center; color: #9CA3AF; font-size: 10px; }
+    .book-cover { width: 90px; height: 120px; background: #D1D5DB; border-radius: 4px; overflow: hidden; }
     .book-details { margin-left: 16px; flex-grow: 1; }
-    .book-title { font-weight: 600; font-size: 15px; margin: 0 0 4px 0; color: var(--text-main); }
+    .book-title { font-weight: 600; font-size: 15px; margin: 0 0 4px 0; }
     .book-info { font-size: 13px; color: #4B5563; line-height: 1.6; }
 
     .status-badge { position: absolute; top: 16px; right: 16px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
@@ -18,78 +18,95 @@
     .status-active { background: #D1FAE5; color: #059669; border: 1px solid #6EE7B7; }
     .status-menunggu { background: #F3F4F6; color: #6B7280; border: 1px solid #D1D5DB; }
 
-    .btn-return { background: #10B981; color: white; border: none; padding: 8px 16px; border-radius: 6px; font-size: 12px; font-weight: 500; cursor: pointer; margin-top: 8px; transition: 0.2s; text-decoration: none; display: inline-block; }
-    .btn-return:hover { background: #059669; }
-
-    .info-box { background: #EFF6FF; border: 1px solid #DBEAFE; border-radius: 12px; padding: 20px; margin-top: 24px; }
-    .info-box p { margin: 6px 0; font-size: 14px; color: #1E40AF; }
+    .btn-return { background: #10B981; color: white; border: none; padding: 8px 16px; border-radius: 6px; text-decoration: none; }
 </style>
 @endsection
 
 @section('content')
+
 <h2 class="section-title">Sedang Dipinjam</h2>
 
 <div class="loan-container">
-    @forelse($pinjaman as $item)
-        <div class="book-item">
-            <div class="book-cover">
-                {{-- PERBAIKAN 1: Ganti 'buku' jadi 'book' & path foto --}}
-                @if($item->book && $item->book->foto)
-                    <img src="{{ asset('storage/buku/' . $item->book->foto) }}" alt="Cover Buku" style="width:100%; height:100%; border-radius:4px; object-fit: cover;">
-                @else
-                    <div style="text-align:center; font-size:9px;">No Cover</div>
-                @endif
-            </div>
 
-            <div class="book-details">
-                <p style="color:red; font-size: 11px; margin-bottom: 5px;">ID Pinjam: {{ $item->id }}</p>
+@forelse($pinjaman as $item)
 
-                {{-- PERBAIKAN 2: Ganti 'buku' jadi 'book' --}}
-                <p class="book-title">{{ $item->book ? $item->book->judul : 'Judul Tidak Ditemukan' }}</p>
+    @php
+        $jatuhTempo = \Carbon\Carbon::parse($item->tgl_pinjam)->addDays($item->durasi);
+        $hariIni = now();
 
-                <p class="book-info">
-                    Dipinjam: {{ \Carbon\Carbon::parse($item->tgl_pinjam)->translatedFormat('d M Y') }} <br>
-                    Batas Kembali: {{ \Carbon\Carbon::parse($item->tgl_pinjam)->addDays($item->durasi)->translatedFormat('d M Y') }}
+        // HITUNG SELISIH TANGGAL SAJA (bukan jam)
+        $terlambat = $jatuhTempo->startOfDay()->diffInDays($hariIni->startOfDay(), false);
+    @endphp
 
-                    @if($item->status == 'dipinjam' && \Carbon\Carbon::now()->gt(\Carbon\Carbon::parse($item->tgl_pinjam)->addDays($item->durasi)))
-                        <br><span style="color: #D97706; font-weight: bold;">(Terlambat {{ \Carbon\Carbon::now()->diffInDays(\Carbon\Carbon::parse($item->tgl_pinjam)->addDays($item->durasi)) }} Hari)</span>
-                    @endif
-                </p>
+    <div class="book-item">
 
-                @if($item->status == 'dipinjam')
-                    <a href="{{ route('pengembalian-buku', ['id' => $item->id]) }}" class="btn-return">
-                        Kembalikan Buku
-                    </a>
-                @endif
-            </div>
-
-            {{-- Label status --}}
-            <div class="status-badge
-                @if($item->status == 'dipinjam')
-                    status-active
-                @elseif($item->status == 'menunggu')
-                    status-menunggu
-                @elseif($item->status == 'ditolak')
-                    status-late
-                @endif
-            ">
-                @if($item->status == 'dipinjam')
-                    Aktif (Diterima)
-                @elseif($item->status == 'menunggu')
-                    Menunggu Verifikasi
-                @elseif($item->status == 'ditolak')
-                    Ditolak
-                @endif
-            </div>
+        <div class="book-cover">
+            @if($item->book && $item->book->foto)
+                <img src="{{ asset('storage/buku/' . $item->book->foto) }}"
+                     style="width:100%;height:100%;object-fit:cover;">
+            @else
+                No Cover
+            @endif
         </div>
-    @empty
-        <p style="text-align:center; color: #94a3b8; padding: 20px;">Kamu tidak memiliki pinjaman aktif.</p>
-    @endforelse
+
+        <div class="book-details">
+
+            <p style="color:red; font-size:11px;">ID Pinjam: {{ $item->id }}</p>
+
+            <p class="book-title">
+                {{ $item->book ? $item->book->judul : 'Judul Tidak Ditemukan' }}
+            </p>
+
+            <p class="book-info">
+                Dipinjam:
+                {{ \Carbon\Carbon::parse($item->tgl_pinjam)->translatedFormat('d M Y') }}
+                <br>
+
+                Batas Kembali:
+                {{ $jatuhTempo->translatedFormat('d M Y') }}
+
+                @if($item->status == 'dipinjam' && $terlambat > 0)
+                    <br>
+                    <span style="color:#D97706; font-weight:bold;">
+                        (Terlambat {{ $terlambat }} Hari)
+                    </span>
+                @endif
+            </p>
+
+            @if($item->status == 'dipinjam')
+                <a href="{{ route('pengembalian-buku', ['id' => $item->id]) }}" class="btn-return">
+                    Kembalikan Buku
+                </a>
+            @endif
+
+        </div>
+
+        <div class="status-badge
+            @if($item->status == 'dipinjam')
+                status-active
+            @elseif($item->status == 'menunggu')
+                status-menunggu
+            @else
+                status-late
+            @endif
+        ">
+            @if($item->status == 'dipinjam')
+                Aktif
+            @elseif($item->status == 'menunggu')
+                Menunggu
+            @else
+                Ditolak
+            @endif
+        </div>
+
+    </div>
+
+@empty
+
+<p style="text-align:center;">Tidak ada pinjaman aktif.</p>
+
+@endforelse
+
 </div>
 
-<h2 class="section-title" style="margin-top: 40px;">Informasi</h2>
-<div class="info-box">
-    <p>• Durasi peminjaman maksimal {{ $pinjaman->first()->durasi ?? 30 }} hari.</p>
-    <p>• Pastikan mengembalikan buku sebelum jatuh tempo untuk menghindari denda.</p>
-</div>
 @endsection

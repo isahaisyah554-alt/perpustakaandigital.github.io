@@ -10,14 +10,11 @@ class PengembalianController extends Controller
 {
     public function index()
     {
-        // 1. Ambil data, pastikan pakai relasi 'book' sesuai di Model Pinjaman
+        // Ambil data
         $pengembalian = Pinjaman::with(['user', 'book'])
                         ->whereIn('status', ['pengajuan_kembali', 'dikembalikan'])
                         ->latest()
                         ->get();
-
-        // 2. Pastikan nama view ini SESUAI dengan folder kamu (petugas/pengembalian/index.blade.php)
-        // Kalau file kamu ada di resources/views/petugas/pengembalian.blade.php, pakai 'petugas.pengembalian'
         return view('petugas.pengembalian', compact('pengembalian'));
     }
 
@@ -46,8 +43,6 @@ class PengembalianController extends Controller
         $pinjaman->save();
 
         // TAMBAH STOK BUKU (+1)
-        // PERBAIKAN: Pakai 'book' (sesuai relasi di model), bukan 'buku'
-        // PERBAIKAN: Pakai 'stok_buku' (sesuai nama kolom di database kamu)
         if ($pinjaman->book) {
             $pinjaman->book->increment('stok_buku');
         }

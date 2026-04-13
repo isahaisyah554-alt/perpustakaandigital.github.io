@@ -13,7 +13,7 @@ return new class extends Migration
             $table->string('foto')->nullable(); // Tambah nullable() agar tidak error jika foto kosong
             $table->string('judul');
             $table->string('penulis');
-            $table->integer('tahun_terbit'); // Tambahkan kolom ini di sini
+            $table->integer('tahun_terbit');
             $table->integer('stok_buku');
             $table->timestamps();
         });

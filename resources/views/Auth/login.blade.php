@@ -157,8 +157,6 @@
     <div class="bg"></div>
 
     <div class="card">
-        <img src="{{ asset('storage/logo.png') }}" class="logo" alt="Logo">
-
         <div class="title">Selamat Datang</div>
         <div class="subtitle">Silahkan login sesuai dengan hak akses Anda</div>
         <form method="POST" action="{{ route('login') }}">

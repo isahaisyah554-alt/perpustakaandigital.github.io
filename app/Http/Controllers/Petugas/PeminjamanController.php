@@ -7,36 +7,44 @@ use App\Models\Pinjaman;
 
 class PeminjamanController extends Controller
 {
-    public function index()
-    {
-        $data = Pinjaman::orderBy('created_at', 'desc')->get();
+   // Menampilkan daftar seluruh data peminjaman
+public function index()
+{
+    // Mengambil semua data pinjaman, diurutkan terbaru
+    $data = Pinjaman::orderBy('created_at', 'desc')->get();
 
-        return view('petugas.datapeminjaman', compact('data'));
-        $data = Pinjaman::with(['user', 'buku'])->orderBy('created_at', 'desc')->get();
+    return view('petugas.datapeminjaman', compact('data'));
+}
 
-        return view('petugas.peminjaman.index', compact('data'));
-    }
+// Menampilkan form input pinjaman baru
+public function create()
+{
+    return view('petugas.input-pinjaman');
+}
 
-    public function create()
-    {
-        return view('petugas.input-pinjaman');
-    }
+// Menerima pengajuan pinjaman
+public function terima($id)
+{
+    // Cari data pinjaman berdasarkan ID
+    $pinjam = Pinjaman::findOrFail($id);
 
-        public function terima($id)
-    {
-        $pinjam = Pinjaman::findOrFail($id);
-        $pinjam->status = 'dipinjam';
-        $pinjam->save();
+    // Ubah status menjadi dipinjam
+    $pinjam->status = 'dipinjam';
+    $pinjam->save();
 
-        return back()->with('success', 'Pinjaman diterima');
-    }
+    return back()->with('success', 'Pinjaman diterima');
+}
 
-    public function tolak($id)
-    {
-        $pinjam = Pinjaman::findOrFail($id);
-        $pinjam->status = 'ditolak';
-        $pinjam->save();
+// Menolak pengajuan pinjaman
+public function tolak($id)
+{
+    // Cari data pinjaman berdasarkan ID
+    $pinjam = Pinjaman::findOrFail($id);
 
-        return back()->with('success', 'Pinjaman ditolak');
-    }
+    // Ubah status menjadi ditolak
+    $pinjam->status = 'ditolak';
+    $pinjam->save();
+
+    return back()->with('success', 'Pinjaman ditolak');
+}
 }

@@ -9,10 +9,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('pinjaman', function (Blueprint $table) {
-            // tanggal buku dikembalikan
             $table->dateTime('tgl_kembali')->nullable()->after('durasi');
 
-            // denda keterlambatan
             $table->integer('denda')->default(0)->after('tgl_kembali');
         });
     }

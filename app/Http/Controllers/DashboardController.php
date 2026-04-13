@@ -10,8 +10,6 @@ class DashboardController extends Controller
     // --- DASHBOARD ANGGOTA ---
     public function anggota()
     {
-        // Hapus baris $books = \App\Models\Book::all(); <-- INI YANG DIHAPUS
-
         // Ambil data pinjaman aktif saja
         $pinjamanAktif = \App\Models\Pinjaman::where('user_id', auth()->id())
                             ->where('status', 'dipinjam')

@@ -44,7 +44,7 @@ class PeminjamanController extends Controller
             $buku = Book::findOrFail($request->book_id);
             $buku->refresh(); // MEMASTIKAN stok yang dibaca adalah yang terbaru di DB
 
-            // CEK STOK (Ganti ke < 1 biar lebih pasti)
+            // CEK STOK
             if ((int)$buku->stok_buku< 1) {
                 return back()->with('error', 'Waduh, stok bukunya abis ditilep orang! (Stok saat ini: ' . $buku->stok_buku . ')');
             }

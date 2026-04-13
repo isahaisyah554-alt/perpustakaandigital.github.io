@@ -16,7 +16,7 @@ class User extends Authenticatable
     'username',
     'no_hp',
     'password',
-    'role', // Pastikan role juga ada di sini
+    'role', 
 ];
     /**
      * Field yang disembunyikan

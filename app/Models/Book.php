@@ -2,13 +2,11 @@
 
 namespace App\Models;
 
-// Baris Request yang salah tadi dihapus saja, tidak terpakai di sini
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Database\Eloquent\Factories\HasFactory; // Tambahkan ini kalau mau pakai Factory
-
+use Illuminate\Database\Eloquent\Factories\HasFactory; 
 class Book extends Model
 {
-    use HasFactory; // Opsional, standar Laravel
+    use HasFactory; 
         protected $fillable = [
     'foto',
     'judul',

@@ -123,15 +123,14 @@
         <td>
             <div class="book-cell">
                 <div class="cover-img">
-                    {{-- GANTI: $r->buku jadi $r->book --}}
                     @if($r->book && $r->book->foto)
-                        <img src="{{ asset('storage/' . $r->book->foto) }}"
-                             style="width:100%; height:100%; object-fit:cover;">
+                        <img src="{{ asset('storage/buku/' . $r->book->foto) }}"
+                            style="width:100%; height:100%; object-fit:cover;">
                     @else
                         <div style="font-size:10px; text-align:center; padding-top:15px;">No Img</div>
                     @endif
                 </div>
-                {{-- GANTI: $r->buku jadi $r->book --}}
+
                 <span>{{ $r->book->judul ?? 'Judul Tidak Ditemukan' }}</span>
             </div>
         </td>

@@ -87,6 +87,7 @@
         .content-body { padding: 32px; max-width: 1200px; }
 
         @yield('page-css')
+        @yield('page-js')
     </style>
 </head>
 <body>
@@ -98,7 +99,7 @@
                 <a href="{{ route('dashboard-anggota') }}">Dashboard</a>
             </li>
 
-            <li class="{{ Request::routeIs('peminjaman-cari') ? 'active' : '' }}">
+            <li class="{{ Request::is('peminjaman-cari') || Request::is('pinjam-buku/*') ? 'active' : '' }}">
                 <a href="{{ route('peminjaman-cari') }}">Cari Buku</a>
             </li>
 

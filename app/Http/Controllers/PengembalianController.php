@@ -34,14 +34,14 @@ class PengembalianController extends Controller
 {
     $pinjaman = Pinjaman::findOrFail($id);
 
-    // Ambil nilai denda yang dihitung di halaman Konfirmasi (dari <input name="denda">)
+    // Ambil nilai denda yang dihitung di halaman Konfirmasi
     $dendaInput = $request->input('denda', 0);
 
     // Simpan ke database
     $pinjaman->update([
         'status' => 'pengajuan_kembali',
         'tgl_kembali' => now(),
-        'denda' => $dendaInput, // <--- INI KUNCINYA supaya denda tersimpan!
+        'denda' => $dendaInput,
     ]);
 
     return redirect()->route('peminjaman-saya')->with('success', 'Berhasil diajukan!');
