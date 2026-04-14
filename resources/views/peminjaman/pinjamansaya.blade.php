@@ -4,21 +4,107 @@
 
 @section('page-css')
 <style>
-    .section-title { font-weight: 600; font-size: 22px; color: var(--text-muted); margin-bottom: 20px; }
-    .loan-container { background: white; border: 1px solid var(--border); border-radius: 12px; padding: 24px; box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.03); }
+    .section-title{
+        font-weight:600;
+        font-size:22px;
+        color:var(--text-muted);
+        margin-bottom:20px;
+    }
 
-    .book-item { display: flex; align-items: center; background: #F9FAFB; border: 1px solid #E5E7EB; border-radius: 10px; padding: 16px; margin-bottom: 16px; position: relative; }
-    .book-cover { width: 90px; height: 120px; background: #D1D5DB; border-radius: 4px; overflow: hidden; }
-    .book-details { margin-left: 16px; flex-grow: 1; }
-    .book-title { font-weight: 600; font-size: 15px; margin: 0 0 4px 0; }
-    .book-info { font-size: 13px; color: #4B5563; line-height: 1.6; }
+    .loan-container{
+        background:white;
+        border:1px solid var(--border);
+        border-radius:12px;
+        padding:24px;
+        box-shadow:0px 4px 10px rgba(0,0,0,0.03);
+    }
 
-    .status-badge { position: absolute; top: 16px; right: 16px; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: 600; }
-    .status-late { background: #FEF3C7; color: #D97706; border: 1px solid #FCD34D; }
-    .status-active { background: #D1FAE5; color: #059669; border: 1px solid #6EE7B7; }
-    .status-menunggu { background: #F3F4F6; color: #6B7280; border: 1px solid #D1D5DB; }
+    .book-item{
+        display:flex;
+        align-items:center;
+        background:#F9FAFB;
+        border:1px solid #E5E7EB;
+        border-radius:10px;
+        padding:16px;
+        margin-bottom:16px;
+        position:relative;
+    }
 
-    .btn-return { background: #10B981; color: white; border: none; padding: 8px 16px; border-radius: 6px; text-decoration: none; }
+    .book-cover{
+        width:90px;
+        height:120px;
+        background:#D1D5DB;
+        border-radius:4px;
+        overflow:hidden;
+    }
+
+    .book-details{
+        margin-left:16px;
+        flex-grow:1;
+    }
+
+    .book-title{
+        font-weight:600;
+        font-size:15px;
+        margin:0 0 6px 0;
+    }
+
+    .book-info{
+        font-size:13px;
+        color:#4B5563;
+        line-height:1.6;
+    }
+
+    .id-badge{
+        display:inline-block;
+        background:#EFF6FF;
+        color:#2563EB;
+        font-size:11px;
+        font-weight:700;
+        padding:4px 10px;
+        border-radius:20px;
+        margin-bottom:8px;
+        margin-right:6px;
+    }
+
+    .status-badge{
+        position:absolute;
+        top:16px;
+        right:16px;
+        padding:4px 12px;
+        border-radius:20px;
+        font-size:11px;
+        font-weight:600;
+    }
+
+    .status-late{
+        background:#FEF3C7;
+        color:#D97706;
+        border:1px solid #FCD34D;
+    }
+
+    .status-active{
+        background:#D1FAE5;
+        color:#059669;
+        border:1px solid #6EE7B7;
+    }
+
+    .status-menunggu{
+        background:#F3F4F6;
+        color:#6B7280;
+        border:1px solid #D1D5DB;
+    }
+
+    .btn-return{
+        background:#10B981;
+        color:white;
+        border:none;
+        padding:8px 16px;
+        border-radius:6px;
+        text-decoration:none;
+        display:inline-block;
+        margin-top:10px;
+    }
 </style>
 @endsection
 
@@ -33,8 +119,6 @@
     @php
         $jatuhTempo = \Carbon\Carbon::parse($item->tgl_pinjam)->addDays($item->durasi);
         $hariIni = now();
-
-        // HITUNG SELISIH TANGGAL SAJA (bukan jam)
         $terlambat = $jatuhTempo->startOfDay()->diffInDays($hariIni->startOfDay(), false);
     @endphp
 
@@ -51,7 +135,12 @@
 
         <div class="book-details">
 
-            <p style="color:red; font-size:11px;">ID Pinjam: {{ $item->id }}</p>
+            {{-- ID Pinjam + ID Buku --}}
+            <div>
+                <span class="id-badge">
+                    ID Pinjam: P{{ str_pad($item->id,3,'0',STR_PAD_LEFT) }}
+                </span>
+            </div>
 
             <p class="book-title">
                 {{ $item->book ? $item->book->judul : 'Judul Tidak Ditemukan' }}
@@ -74,7 +163,8 @@
             </p>
 
             @if($item->status == 'dipinjam')
-                <a href="{{ route('pengembalian-buku', ['id' => $item->id]) }}" class="btn-return">
+                <a href="{{ route('pengembalian-buku', ['id' => $item->id]) }}"
+                   class="btn-return">
                     Kembalikan Buku
                 </a>
             @endif

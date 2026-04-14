@@ -35,12 +35,21 @@
                 {{-- PEMINJAM --}}
                 <td style="padding:15px;">
                     <strong>{{ $p->user->name ?? 'User Hilang' }}</strong><br>
-                    <small style="color:#94a3b8;">ID: {{ $p->user_id }}</small>
+
+                    <small style="color:#94a3b8; font-weight:600;">
+                        {{ 'AGT' . str_pad($p->user_id, 4, '0', STR_PAD_LEFT) }}
+                    </small>
                 </td>
 
                 {{-- BUKU --}}
                 <td style="padding:15px;">
-                    {{ $p->book->judul ?? 'Buku Dihapus' }}
+                    <strong style="color:#1e293b;">
+                        {{ $p->book->judul ?? 'Buku Dihapus' }}
+                    </strong><br>
+
+                    <small style="color:#94a3b8; font-weight:600;">
+                        {{ 'BK' . str_pad($p->book_id, 4, '0', STR_PAD_LEFT) }}
+                    </small>
                 </td>
 
                 {{-- TGL PINJAM --}}
@@ -113,40 +122,60 @@
                 {{-- AKSI --}}
                 <td style="padding:15px; text-align:center;">
 
-                    @if($p->status == 'pengajuan_kembali')
+    @if($p->status == 'pengajuan_kembali')
 
-                    <form action="{{ route('petugas.pengembalian.terima', $p->id) }}" method="POST">
-                        @csrf
-                        <button type="submit"
-                            style="
-                                background:#10B981;
-                                color:white;
-                                border:none;
-                                padding:8px 16px;
-                                border-radius:8px;
-                                font-weight:bold;
-                                cursor:pointer;
-                            "
-                            onclick="return confirm('Konfirmasi pengembalian buku? Stok akan bertambah.')">
-                            Verifikasi
-                        </button>
-                    </form>
+        {{-- Tombol Verifikasi --}}
+        <form action="{{ route('petugas.pengembalian.terima', $p->id) }}" method="POST">
+            @csrf
+            <button type="submit"
+                style="
+                    background:#10B981;
+                    color:white;
+                    border:none;
+                    padding:8px 16px;
+                    border-radius:8px;
+                    font-weight:bold;
+                    cursor:pointer;
+                "
+                onclick="return confirm('Konfirmasi pengembalian buku? Stok akan bertambah.')">
+                Verifikasi
+            </button>
+        </form>
 
-                    @else
+        {{-- Tombol Struk Denda --}}
+        @if($denda_live > 0)
+            <a href="{{ route('petugas.struk', $p->id) }}"
+               target="_blank"
+               style="
+                    display:inline-block;
+                    margin-top:8px;
+                    background:#dc2626;
+                    color:white;
+                    padding:6px 12px;
+                    border-radius:6px;
+                    font-size:12px;
+                    font-weight:bold;
+                    text-decoration:none;
+               ">
+                🧾 Struk Denda
+            </a>
+        @endif
 
-                    <span style="
-                        color:#64748b;
-                        font-weight:bold;
-                        background:#f1f5f9;
-                        padding:5px 12px;
-                        border-radius:8px;
-                    ">
-                        Selesai
-                    </span>
+    @else
 
-                    @endif
+        <span style="
+            color:#64748b;
+            font-weight:bold;
+            background:#f1f5f9;
+            padding:5px 12px;
+            border-radius:8px;
+        ">
+            Selesai
+        </span>
 
-                </td>
+    @endif
+
+</td>
 
             </tr>
 

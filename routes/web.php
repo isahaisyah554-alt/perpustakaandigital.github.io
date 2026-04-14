@@ -56,6 +56,9 @@ Route::prefix('petugas')->group(function () {
     Route::get('/anggota', [DataAnggotaController::class, 'index'])
         ->name('petugas.anggota');
 
+    Route::get('/petugas/struk/{id}', [PengembalianController::class, 'struk'])
+    ->name('petugas.struk');
+
     // PEMINJAMAN (KONFIRMASI PINJAM BARU)
     Route::get('/peminjaman', [PeminjamanPetugasController::class, 'index'])->name('petugas.peminjaman.index');
     Route::post('/peminjaman/{id}/terima', [PeminjamanPetugasController::class, 'terima'])->name('petugas.peminjaman.terima');
@@ -83,5 +86,10 @@ Route::prefix('kepala')->group(function () {
     // 2. BARU DAFTARKAN YANG PAKAI {id}
     Route::get('/petugas/{id}', [DataPetugasController::class, 'show'])->name('kepala.petugas.show');
     Route::delete('/petugas/{id}', [DataPetugasController::class, 'destroy'])->name('kepala.petugas.destroy');
+
+    Route::get('/petugas/{id}/edit', [DataPetugasController::class, 'edit'])->name('kepala.petugas.edit');
+    Route::put('/petugas/{id}', [DataPetugasController::class, 'update'])->name('kepala.petugas.update');
+
+    Route::get('/laporan', [DashboardController::class, 'laporan'])->name('kepala.laporan');
 });
 

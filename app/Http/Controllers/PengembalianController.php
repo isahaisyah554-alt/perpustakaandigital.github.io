@@ -31,19 +31,19 @@ class PengembalianController extends Controller
     }
 
     public function konfirmasi(Request $request, $id)
-{
-    $pinjaman = Pinjaman::findOrFail($id);
+    {
+        // 1. Cari data pinjaman
+        $pinjaman = Pinjaman::findOrFail($id);
 
-    // Ambil nilai denda yang dihitung di halaman Konfirmasi
-    $dendaInput = $request->input('denda', 0);
+        // 2. Update data ke status pengajuan
+        $pinjaman->update([
+            'status' => 'pengajuan_kembali',
+            'tgl_kembali' => Carbon::now(), // Catat tanggal pengembalian hari ini
+            'denda' => $request->denda ?? 0, // Ambil nilai denda dari input hidden di view
+        ]);
 
-    // Simpan ke database
-    $pinjaman->update([
-        'status' => 'pengajuan_kembali',
-        'tgl_kembali' => now(),
-        'denda' => $dendaInput,
-    ]);
-
-    return redirect()->route('peminjaman-saya')->with('success', 'Berhasil diajukan!');
-}
+        // 3. Kembalikan ke halaman sebelumnya dengan pesan sukses
+        return redirect()->route('peminjaman-saya')
+                         ->with('success', 'Permintaan pengembalian berhasil dikirim. Silahkan temui petugas untuk verifikasi buku.');
+    }
 }

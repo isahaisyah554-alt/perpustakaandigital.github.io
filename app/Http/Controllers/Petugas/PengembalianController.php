@@ -49,4 +49,19 @@ class PengembalianController extends Controller
 
         return back()->with('success', 'Buku diterima! Stok nambah 1. Denda: Rp ' . number_format($denda,0,',','.'));
     }
+
+    public function struk($id)
+{
+    $p = Pinjaman::with(['user', 'book'])->findOrFail($id);
+
+    $jatuh_tempo = Carbon::parse($p->tgl_pinjam)->addDays($p->durasi);
+
+    $hari_telat = now()->gt($jatuh_tempo)
+        ? $jatuh_tempo->diffInDays(now())
+        : 0;
+
+    $denda = $p->denda ?? ($hari_telat * 1000);
+
+    return view('petugas.struk', compact('p', 'jatuh_tempo', 'hari_telat', 'denda'));
+}
 }

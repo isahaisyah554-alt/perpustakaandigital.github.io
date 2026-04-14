@@ -91,14 +91,12 @@
     <div class="profile-area">
         <div class="profile-info">
             {{-- Nama dinamis sesuai petugas yang login --}}
-            <span class="name">{{ Auth::user()->name }}</span>
-            {{-- Kamu juga bisa bikin role dinamis jika ada kolom 'role' di database --}}
-            <span class="role">{{ Auth::user()->role ?? 'Petugas Perpustakaan' }}</span>
+            <span class="name">{{ Auth::user()->name ?? 'Petugas' }}</span>
+<span class="role">{{ Auth::user()->role ?? 'Petugas Perpustakaan' }}</span>
             </div>
          {{-- Avatar otomatis pakai inisial nama --}}
-         <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name) }}&background=E5E7EB&color=374151"
-             style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
-            </div>
+         <img src="https://ui-avatars.com/api/?name={{ urlencode(Auth::user()->name ?? 'Petugas') }}&background=E5E7EB&color=374151"
+    style="width: 40px; height: 40px; border-radius: 50%; object-fit: cover;">
     </header>
 
     <div class="content-body">

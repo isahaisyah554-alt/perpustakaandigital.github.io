@@ -150,7 +150,9 @@
                 <span style="width: 10px; height: 10px; background: #10b981; border-radius: 50%; display: inline-block;"></span>
                 AKTIF & TERVERIFIKASI
             </div>
-            <p style="margin-top: 15px; font-weight: 600;">Member ID: #{{ str_pad(Auth::user()->id, 4, '0', STR_PAD_LEFT) }}</p>
+            <p style="margin-top: 15px; font-weight: 600;">
+                Member ID: AGT{{ str_pad(Auth::user()->id, 3, '0', STR_PAD_LEFT) }}
+            </p>
         </div>
     </div>
 

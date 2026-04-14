@@ -8,52 +8,85 @@ use App\Models\User;
 
 class DataPetugasController extends Controller
 {
-        // Menampilkan daftar petugas
-    public function index() {
+    // Menampilkan daftar petugas
+    public function index()
+    {
         $petugas = User::where('role', 'petugas')->get();
         return view('backend.petugas.index', compact('petugas'));
     }
 
-    // Menampilkan form tambah petugas
-    public function create() {
+    // Form tambah petugas
+    public function create()
+    {
         return view('backend.petugas.create');
     }
 
-    // Menyimpan data petugas baru
-    public function store(Request $request) {
-
-        // Validasi input
+    // Simpan petugas baru
+    public function store(Request $request)
+    {
         $request->validate([
-            'name' => 'required',
+            'name'     => 'required',
             'username' => 'required|unique:users',
-            'email' => 'required|email|unique:users',
+            'email'    => 'required|email|unique:users',
             'password' => 'required|min:6'
         ]);
 
-        // Simpan ke database
         User::create([
-            'name' => $request->name,
+            'name'     => $request->name,
             'username' => $request->username,
-            'email' => $request->email,
-            'no_hp' => $request->no_hp,
+            'email'    => $request->email,
+            'no_hp'    => $request->no_hp,
             'password' => bcrypt($request->password),
-            'role' => 'petugas'
+            'role'     => 'petugas'
         ]);
 
-        // Kembali ke halaman petugas
-        return redirect()->route('kepala.petugas')->with('success', 'Petugas berhasil ditambah!');
+        return redirect()->route('kepala.petugas')
+            ->with('success', 'Petugas berhasil ditambah!');
     }
 
-    // Menampilkan detail petugas
-    public function show($id) {
+    // Detail petugas
+    public function show($id)
+    {
         $petugas = User::findOrFail($id);
         return view('backend.petugas.show', compact('petugas'));
     }
 
-    // Menghapus data petugas
-    public function destroy($id) {
+    // Form edit (pakai halaman create yang sama)
+    public function edit($id)
+    {
+        $petugas = User::findOrFail($id);
+        return view('backend.petugas.create', compact('petugas'));
+    }
+
+    // Update petugas
+    public function update(Request $request, $id)
+    {
+        $petugas = User::findOrFail($id);
+
+        $request->validate([
+            'name'     => 'required',
+            'username' => 'required|unique:users,username,' . $id,
+            'email'    => 'required|email|unique:users,email,' . $id,
+            'no_hp'    => 'nullable',
+        ]);
+
+        $petugas->update([
+            'name'     => $request->name,
+            'username' => $request->username,
+            'email'    => $request->email,
+            'no_hp'    => $request->no_hp,
+        ]);
+
+        return redirect()->route('kepala.petugas')
+            ->with('success', 'Petugas berhasil diupdate!');
+    }
+
+    // Hapus petugas
+    public function destroy($id)
+    {
         User::findOrFail($id)->delete();
 
-        return redirect()->route('kepala.petugas')->with('success', 'Petugas berhasil dihapus!');
+        return redirect()->route('kepala.petugas')
+            ->with('success', 'Petugas berhasil dihapus!');
     }
 }

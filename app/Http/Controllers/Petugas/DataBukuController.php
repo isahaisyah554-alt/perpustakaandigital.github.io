@@ -10,9 +10,16 @@ use Illuminate\Support\Facades\Storage;
 class DatabukuController extends Controller
 {
     // Tampilkan Tabel
-    public function index()
+    public function index(Request $request)
     {
-        $books = Book::all();
+        $search = $request->search;
+
+        $books = Book::when($search, function ($query, $search) {
+            $query->where('judul', 'like', '%' . $search . '%')
+                ->orWhere('penulis', 'like', '%' . $search . '%')
+                ->orWhere('tahun_terbit', 'like', '%' . $search . '%');
+        })->get();
+
         return view('backend.buku.index', compact('books'));
     }
 

@@ -4,13 +4,11 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 
 <style>
-    /* Container Utama */
     .main-container {
         padding: 25px;
         font-family: 'Inter', 'Segoe UI', sans-serif;
     }
 
-    /* Header Section */
     .header-box {
         display: flex;
         justify-content: space-between;
@@ -28,10 +26,9 @@
     }
 
     .header-box h2 i {
-        color: #0984e3; /* Warna Biru Icon */
+        color: #0984e3;
     }
 
-    /* Card Table */
     .table-card {
         background: #ffffff;
         border-radius: 15px;
@@ -44,14 +41,12 @@
         overflow-x: auto;
     }
 
-    /* Styling Tabel */
     .table-custom {
         width: 100%;
         border-collapse: collapse;
         margin-bottom: 0;
     }
 
-    /* Header Tabel - Dibuat Gelap & Tegas */
     .table-custom thead {
         background-color: #f8f9fc;
         border-bottom: 2px solid #edf2f7;
@@ -63,11 +58,10 @@
         font-size: 12px;
         text-transform: uppercase;
         letter-spacing: 1px;
-        color: #4b5563; /* Warna teks field */
+        color: #4b5563;
         font-weight: 700;
     }
 
-    /* Body Tabel */
     .table-custom td {
         padding: 16px 20px;
         vertical-align: middle;
@@ -76,13 +70,11 @@
         font-size: 14px;
     }
 
-    /* Baris Hover */
     .table-custom tbody tr:hover {
         background-color: #f9fafb;
         transition: 0.2s ease-in-out;
     }
 
-    /* Penomoran Bulat */
     .no-badge {
         background: #0984e3;
         color: white;
@@ -92,7 +84,6 @@
         font-weight: bold;
     }
 
-    /* Nama & Email Styling */
     .name-text {
         font-weight: 700;
         display: block;
@@ -104,7 +95,6 @@
         color: #636e72;
     }
 
-    /* Username Badge */
     .u-badge {
         background: #e1f5fe;
         color: #0288d1;
@@ -114,7 +104,17 @@
         font-size: 13px;
     }
 
-    /* Empty State */
+    .id-badge {
+        display: inline-block;
+        background: #ecfdf5;
+        color: #059669;
+        padding: 4px 10px;
+        border-radius: 20px;
+        font-size: 12px;
+        font-weight: 700;
+        margin-top: 6px;
+    }
+
     .empty-state {
         text-align: center;
         padding: 50px 0;
@@ -133,43 +133,63 @@
             <table class="table-custom">
                 <thead>
                     <tr>
-                        <th width="80" style="text-align: center;">No</th>
+                        <th width="80" style="text-align:center;">No</th>
                         <th>Profil Anggota</th>
                         <th>Username</th>
                         <th>Kontak</th>
                     </tr>
                 </thead>
+
                 <tbody>
                     @forelse($anggota as $i => $a)
                     <tr>
-                        <td style="text-align: center;">
+
+                        <td style="text-align:center;">
                             <span class="no-badge">{{ $i + 1 }}</span>
                         </td>
+
                         <td>
                             <span class="name-text">{{ $a->name }}</span>
-                            <span class="email-subtext">Registered: {{ $a->created_at ? $a->created_at->format('d M Y') : '-' }}</span>
+
+                            {{-- ID Anggota --}}
+                            <span class="id-badge">
+                                ID: {{ $a->id_anggota ?? 'AGT-' . str_pad($a->id, 3, '0', STR_PAD_LEFT) }}
+                            </span>
+
+                            <br>
+
+                            <span class="email-subtext">
+                                Registered: {{ $a->created_at ? $a->created_at->format('d M Y') : '-' }}
+                            </span>
                         </td>
+
                         <td>
                             <span class="u-badge">@ {{ $a->username }}</span>
                         </td>
+
                         <td>
-                            <div style="margin-bottom: 4px;">
-                                <i class="fa-regular fa-envelope" style="width: 15px; color: #0984e3;"></i> {{ $a->email }}
+                            <div style="margin-bottom:4px;">
+                                <i class="fa-regular fa-envelope" style="width:15px; color:#0984e3;"></i>
+                                {{ $a->email }}
                             </div>
+
                             <div>
-                                <i class="fa-solid fa-phone" style="width: 15px; color: #00b894;"></i> {{ $a->no_hp ?? '-' }}
+                                <i class="fa-solid fa-phone" style="width:15px; color:#00b894;"></i>
+                                {{ $a->no_hp ?? '-' }}
                             </div>
                         </td>
+
                     </tr>
                     @empty
                     <tr>
                         <td colspan="4" class="empty-state">
-                            <i class="fa-solid fa-folder-open fa-3x" style="margin-bottom: 15px; display: block; opacity: 0.5;"></i>
+                            <i class="fa-solid fa-folder-open fa-3x" style="margin-bottom:15px; display:block; opacity:0.5;"></i>
                             Belum ada data anggota yang tersedia.
                         </td>
                     </tr>
                     @endforelse
                 </tbody>
+
             </table>
         </div>
     </div>

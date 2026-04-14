@@ -10,6 +10,19 @@
     .book-info-header { background: #F9FAFB; padding: 24px; display: flex; gap: 24px; border-bottom: 1px solid var(--border); }
     .book-cover { width: 120px; height: 165px; border-radius: 6px; object-fit: cover; background: #E5E7EB; }
     .book-details h3 { margin: 0 0 8px 0; font-size: 20px; }
+
+    .id-badge{
+        display:inline-block;
+        background:#EFF6FF;
+        color:#2563EB;
+        padding:6px 12px;
+        border-radius:8px;
+        font-size:13px;
+        font-weight:700;
+        margin-top:8px;
+        margin-right:8px;
+    }
+
     .badge-ready { display: inline-block; background: #D1FAE5; color: #065F46; padding: 4px 12px; border-radius: 6px; font-size: 13px; font-weight: 600; margin-top: 8px; }
     .section-box { padding: 24px; }
     .section-title { font-weight: 600; font-size: 18px; margin-bottom: 16px; }
@@ -28,134 +41,171 @@
 @endsection
 
 @section('content')
-<div class="breadcrumb">Beranda &nbsp;>&nbsp; Cari Buku &nbsp;>&nbsp; <b>Pinjam Buku</b></div>
+<div class="breadcrumb">Beranda > Cari Buku > <b>Pinjam Buku</b></div>
 
 <div class="header-section">
     <h2>Konfirmasi Peminjaman</h2>
-    <p style="color: var(--text-muted); margin-top: 4px;">Periksa kembali detail peminjaman sebelum menekan tombol konfirmasi.</p>
+    <p style="color: var(--text-muted); margin-top: 4px;">
+        Periksa kembali detail peminjaman sebelum menekan tombol konfirmasi.
+    </p>
 </div>
 
 @if(session('error'))
-    <div style="background: #FEE2E2; color: #991B1B; padding: 15px; border-radius: 8px; margin-top: 20px; border: 1px solid #FECACA;">
-        ⚠️ {{ session('error') }}
-    </div>
+<div style="background:#FEE2E2; color:#991B1B; padding:15px; border-radius:8px; margin-top:20px;">
+    ⚠️ {{ session('error') }}
+</div>
 @endif
 
 <form action="{{ route('peminjaman-simpan') }}" method="POST">
-    @csrf
-    <input type="hidden" name="book_id" value="{{ $buku->id }}">
+@csrf
 
-    <div class="card-panel">
-        {{-- Header Info Buku --}}
-        <div class="book-info-header">
-            <img src="{{ $buku->foto ? asset('storage/buku/' . $buku->foto) : 'https://via.placeholder.com/150x240?text=No+Cover' }}" alt="Cover" class="book-cover">
-            <div class="book-details">
-                <h3>{{ $buku->judul }}</h3>
-                <p style="margin: 4px 0; color: var(--text-muted);">Penulis: {{ $buku->penulis }}</p>
-                <div class="badge-ready">Stok: {{ $buku->stok_buku }} Tersedia</div>
+<input type="hidden" name="book_id" value="{{ $buku->id }}">
+
+<div class="card-panel">
+
+    {{-- HEADER BUKU --}}
+    <div class="book-info-header">
+
+        <img src="{{ $buku->foto ? asset('storage/buku/'.$buku->foto) : 'https://via.placeholder.com/150x240?text=No+Cover' }}" class="book-cover">
+
+        <div class="book-details">
+
+            <h3>{{ $buku->judul }}</h3>
+
+            <p style="margin:4px 0; color:var(--text-muted);">
+                Penulis: {{ $buku->penulis }}
+            </p>
+
+            {{-- ID BUKU --}}
+            <div class="id-badge">
+                ID Buku :
+                B{{ str_pad($buku->id,3,'0',STR_PAD_LEFT) }}
             </div>
-        </div>
 
-        {{-- Info Peminjam --}}
-        <div class="section-box">
-            <div class="section-title">Informasi Peminjam</div>
-            <div class="info-box">
-                <div class="info-label-area">
-                    <div class="info-row">Nama Lengkap</div>
-                    <div class="info-row">ID Anggota</div>
-                </div>
-                <div class="info-content-area">
-                    <div class="info-row" style="color: #111827; font-weight: 600;">
-                        {{ Auth::user()->name }}
-                    </div>
-
-                    <div class="info-row">
-                        {{ Auth::user()->id_anggota ?? '#'.str_pad(Auth::id(),4,'0',STR_PAD_LEFT) }}
-                    </div>
-                </div>
+            <div class="badge-ready">
+                Stok: {{ $buku->stok_buku }} Tersedia
             </div>
-        </div>
 
-        {{-- Pengaturan Tanggal --}}
-        <div class="section-box" style="padding-top: 0;">
-            <div class="section-title">Pengaturan Waktu</div>
-            <div class="info-box">
-                <div class="info-label-area">
-                    <div class="info-row">Tanggal Pinjam</div>
-                    <div class="info-row">Durasi</div>
-                    <div class="info-row">Batas Pengembalian</div>
-                </div>
-                <div class="info-content-area">
-                    <div class="info-row">
-                        <!-- Tampilan ke user -->
-                        <input type="text" class="input-field input-readonly"
-                            value="{{ date('d F Y') }}" readonly>
-
-                        <!-- Data dikirim ke database -->
-                        <input type="hidden" name="tgl_pinjam" id="tgl_pinjam"
-                            value="{{ date('Y-m-d') }}">
-                    </div>
-                    <div class="info-row">
-                        <select name="durasi" id="durasi" class="input-field">
-                            <option value="1">1 Hari</option>
-                            <option value="2">2 Hari</option>
-                            <option value="3">3 Hari</option>
-                            <option value="4">4 Hari</option>
-                            <option value="5">5 Hari</option>
-                            <option value="6">6 Hari</option>
-                            <option value="7">7 Hari (1 Minggu)</option>
-                        </select>
-                    </div>
-                    <div class="info-row">
-                        {{-- Tampilan untuk User --}}
-                        <input type="text" id="tgl_kembali_display" class="input-field input-readonly" readonly>
-                        {{-- Data asli untuk Database --}}
-                        <input type="hidden" name="tgl_kembali" id="tgl_kembali_hidden">
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <div class="footer-action">
-            <div style="margin-right: auto; font-size: 13px; color: #EF4444; font-weight: 600;">
-                * Denda keterlambatan Rp 1.000/hari
-            </div>
-            <a href="{{ route('peminjaman-cari') }}" class="btn btn-cancel">Batal</a>
-            <button type="submit" class="btn btn-confirm">Konfirmasi Peminjaman</button>
         </div>
     </div>
+
+    {{-- INFO PEMINJAM --}}
+    <div class="section-box">
+        <div class="section-title">Informasi Peminjam</div>
+
+        <div class="info-box">
+
+            <div class="info-label-area">
+                <div class="info-row">Nama Lengkap</div>
+                <div class="info-row">ID Anggota</div>
+            </div>
+
+            <div class="info-content-area">
+
+                <div class="info-row" style="font-weight:600; color:#111827;">
+                    {{ Auth::user()->name }}
+                </div>
+
+                <div class="info-row" style="font-weight:700; color:#2563EB;">
+                    AGT{{ str_pad(Auth::id(),3,'0',STR_PAD_LEFT) }}
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    {{-- PENGATURAN WAKTU --}}
+    <div class="section-box" style="padding-top:0;">
+        <div class="section-title">Pengaturan Waktu</div>
+
+        <div class="info-box">
+
+            <div class="info-label-area">
+                <div class="info-row">Tanggal Pinjam</div>
+                <div class="info-row">Durasi</div>
+                <div class="info-row">Batas Pengembalian</div>
+            </div>
+
+            <div class="info-content-area">
+
+                <div class="info-row">
+                    <input type="text" class="input-field input-readonly"
+                        value="{{ date('d F Y') }}" readonly>
+
+                    <input type="hidden" name="tgl_pinjam" id="tgl_pinjam"
+                        value="{{ date('Y-m-d') }}">
+                </div>
+
+                <div class="info-row">
+                    <select name="durasi" id="durasi" class="input-field">
+                        <option value="1">1 Hari</option>
+                        <option value="2">2 Hari</option>
+                        <option value="3">3 Hari</option>
+                        <option value="4">4 Hari</option>
+                        <option value="5">5 Hari</option>
+                        <option value="6">6 Hari</option>
+                        <option value="7">7 Hari</option>
+                    </select>
+                </div>
+
+                <div class="info-row">
+                    <input type="text" id="tgl_kembali_display"
+                        class="input-field input-readonly" readonly>
+
+                    <input type="hidden" name="tgl_kembali"
+                        id="tgl_kembali_hidden">
+                </div>
+
+            </div>
+
+        </div>
+    </div>
+
+    <div class="footer-action">
+        <div style="margin-right:auto; font-size:13px; color:#EF4444; font-weight:600;">
+            * Denda keterlambatan Rp 1.000 / hari
+        </div>
+
+        <a href="{{ route('peminjaman-cari') }}" class="btn btn-cancel">
+            Batal
+        </a>
+
+        <button type="submit" class="btn btn-confirm">
+            Konfirmasi Peminjaman
+        </button>
+    </div>
+
+</div>
 </form>
 @endsection
 
 @section('page-js')
-    <script>
-    function updateTanggal() {
-        const inputPinjam = document.getElementById('tgl_pinjam');
-        const selectDurasi = document.getElementById('durasi');
-        const displayKembali = document.getElementById('tgl_kembali_display');
-        const hiddenKembali = document.getElementById('tgl_kembali_hidden');
+<script>
+function updateTanggal() {
+    const inputPinjam = document.getElementById('tgl_pinjam');
+    const selectDurasi = document.getElementById('durasi');
+    const displayKembali = document.getElementById('tgl_kembali_display');
+    const hiddenKembali = document.getElementById('tgl_kembali_hidden');
 
-        let tgl = new Date(inputPinjam.value);
+    let tgl = new Date(inputPinjam.value);
+    let durasi = parseInt(selectDurasi.value);
 
-        let durasi = parseInt(selectDurasi.value);
-        tgl.setDate(tgl.getDate() + durasi);
+    tgl.setDate(tgl.getDate() + durasi);
 
-        // Tampilan Indonesia
-        const opsi = { day: 'numeric', month: 'long', year: 'numeric' };
-        displayKembali.value = tgl.toLocaleDateString('id-ID', opsi);
+    const opsi = { day:'numeric', month:'long', year:'numeric' };
+    displayKembali.value = tgl.toLocaleDateString('id-ID', opsi);
 
-        // Format DB
-        const y = tgl.getFullYear();
-        const m = String(tgl.getMonth() + 1).padStart(2, '0');
-        const d = String(tgl.getDate()).padStart(2, '0');
+    const y = tgl.getFullYear();
+    const m = String(tgl.getMonth()+1).padStart(2,'0');
+    const d = String(tgl.getDate()).padStart(2,'0');
 
-        hiddenKembali.value = `${y}-${m}-${d}`;
-    }
+    hiddenKembali.value = `${y}-${m}-${d}`;
+}
 
-    document.addEventListener('DOMContentLoaded', function () {
-        updateTanggal();
-
-        document.getElementById('durasi').addEventListener('change', updateTanggal);
-    });
-    </script>
+document.addEventListener('DOMContentLoaded', function () {
+    updateTanggal();
+    document.getElementById('durasi').addEventListener('change', updateTanggal);
+});
+</script>
 @endsection

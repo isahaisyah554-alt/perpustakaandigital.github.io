@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Book;
+use App\Models\User;
 use App\Models\Pinjaman;
 
 class DashboardController extends Controller
@@ -32,20 +33,22 @@ class DashboardController extends Controller
         return view('dashboard.petugas', compact('books', 'total_users'));
     }
     // --- DASHBOARD KEPALA PERPUSTAKAAN ---
-    public function kepala()
-    {
-        $semua_pinjaman = Pinjaman::with(['user', 'book'])->latest()->get();
+public function kepala()
+{
+    return view('dashboard.kepalaperpustakaan', [
+        'total_buku'         => Book::count(),
+        'total_pinjam_aktif' => Pinjaman::where('status','menunggu')->count(),
+        'total_user'         => User::count(),
+    ]);
+}
 
-        // Tambahin data statistik ringkas
-        $total_buku = Book::count();
-        $total_pinjam_aktif = Pinjaman::where('status', 'dipinjam')->count();
-        $total_user = \App\Models\User::where('role', 'anggota')->count();
-
-        return view('dashboard.kepalaperpustakaan', compact(
-            'semua_pinjaman',
-            'total_buku',
-            'total_pinjam_aktif',
-            'total_user'
-        ));
-    }
+public function laporan()
+{
+    return view('kepala.laporan', [
+        'semua_pinjaman'     => Pinjaman::with(['user','book'])->get(),
+        'total_buku'         => Book::count(),
+        'total_pinjam_aktif' => Pinjaman::where('status','menunggu')->count(),
+        'total_user'         => User::count(),
+    ]);
+}
 }
